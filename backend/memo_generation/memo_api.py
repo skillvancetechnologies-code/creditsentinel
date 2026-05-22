@@ -4,7 +4,6 @@ import pandas as pd
 import time
 from groq import Groq
 import requests
-import json
 
 # ==============================
 # FASTAPI APP
@@ -58,7 +57,6 @@ def generate_memo_fast(prompt):
     start = time.time()
 
     response = client.chat.completions.create(
-
         model="llama-3.1-8b-instant",
 
         messages=[
@@ -109,8 +107,6 @@ def parse_memo(text):
                 raw.split(":", 1)[1].strip()
             )
 
-    # Ensure exactly 3 reasons
-
     while len(reasons) < 3:
         reasons.append(
             "Additional underwriting review required"
@@ -124,6 +120,7 @@ def parse_memo(text):
 
 @app.post("/api/memo")
 def generate_memo(req: MemoRequest):
+
     try:
 
         # ==============================
@@ -148,7 +145,6 @@ def generate_memo(req: MemoRequest):
         # ==============================
 
         score_response = requests.post(
-
             "http://localhost:8000/api/score",
 
             json={
@@ -173,19 +169,12 @@ def generate_memo(req: MemoRequest):
               score_data)
 
         risk_level = str(
-            score_data.get(
-                "risk_tier",
-                ""
-            )
-        ).upper().strip()
+    score_data["risk_level"]
+).upper().strip()
 
         risk_score = float(
-            score_data.get(
-                "risk_score",
-                0.5
-            )
-        )
-
+    score_data["risk_score"]
+)
         print("FINAL RISK LEVEL:",
               risk_level)
 
@@ -298,14 +287,15 @@ REASON 3: ...
         memo, elapsed = generate_memo_fast(
             prompt
         )
+
         # ==============================
         # PARSE REASONS
         # ==============================
 
         reasons = parse_memo(memo)
 
-               # ==============================
-        # BUILD 6 MEMO SECTIONS
+        # ==============================
+        # BUILD MEMO SECTIONS
         # ==============================
 
         profile = (
@@ -361,6 +351,8 @@ REASON 3: ...
             ),
 
             "risk_level": risk_level,
+
+            "risk_score": risk_score,
 
             "decision": decision,
 
