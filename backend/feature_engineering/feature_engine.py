@@ -2,40 +2,71 @@ import pandas as pd
 import numpy as np
 import os
 
-# ── Works everywhere: VS Code, Colab, Divya's machine ─────────────────
-# Looks for CSVs in the same folder as this .py file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data", "sample")
-print(DATA_DIR)
-# ── Global dataframes (used when running as a script) ──────────────────
-df_loans = pd.read_csv(os.path.join(DATA_DIR, "loan_applications.csv"))
-df_bank  = pd.read_csv(os.path.join(DATA_DIR, "bank_statements.csv"))
-df_bur   = pd.read_csv(os.path.join(DATA_DIR, "bureau_data.csv"))
-df_gst   = pd.read_csv(os.path.join(DATA_DIR, "gst_filings.csv"))
+# ── Relative paths (works everywhere: VS Code, Colab, any machine) ────
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
+DATA_DIR = os.path.join(
+    BASE_DIR, "data", "samples"
+)
+
+# ── Load datasets ─────────────────
+df_loans = pd.read_csv(
+    os.path.join(DATA_DIR, "loan_applications.csv")
+)
+
+df_bank = pd.read_csv(
+    os.path.join(DATA_DIR, "bank_statements.csv")
+)
+
+df_bur = pd.read_csv(
+    os.path.join(DATA_DIR, "bureau_data.csv")
+)
+
+df_gst = pd.read_csv(
+    os.path.join(DATA_DIR, "gst_filings.csv")
+)
 
 
-def compute_features(application_id,
-                     loans_df=None,
-                     bank_df=None,
-                     bur_df=None,
-                     gst_df=None):
+def compute_features(
+    application_id,
+    loans_df=None,
+    bank_df=None,
+    bur_df=None,
+    gst_df=None
+):
     """
     Core feature computation.
-    If dataframes are not passed in, falls back to the global ones.
     """
-    # ── Use passed-in dataframes, or fall back to globals ─────
+
+    # ── Use passed dataframes or global ones ─────────────────
     loans_df = loans_df if loans_df is not None else df_loans
-    bank_df  = bank_df  if bank_df  is not None else df_bank
-    bur_df   = bur_df   if bur_df   is not None else df_bur
-    gst_df   = gst_df   if gst_df   is not None else df_gst
+    bank_df = bank_df if bank_df is not None else df_bank
+    bur_df = bur_df if bur_df is not None else df_bur
+    gst_df = gst_df if gst_df is not None else df_gst
 
-    loan = loans_df[loans_df["application_id"] == application_id].iloc[0]
-    bank = bank_df[bank_df["application_id"] == application_id]
-    bur  = bur_df[bur_df["application_id"] == application_id].iloc[0]
-    gst  = gst_df[gst_df["application_id"] == application_id]
+    # ── Filter application data ─────────────────
+    loan = loans_df[
+        loans_df["application_id"] == application_id
+    ].iloc[0]
 
-    # ── All your existing feature logic stays exactly the same ────────
+    bank = bank_df[
+        bank_df["application_id"] == application_id
+    ]
+
+    bur = bur_df[
+        bur_df["application_id"] == application_id
+    ].iloc[0]
+
+    gst = gst_df[
+        gst_df["application_id"] == application_id
+    ]
+
+    # ── Feature Engineering ─────────────────
     features = {
+
+        # Loan features
         "monthly_income": loan["monthly_income"],
         "requested_loan_amount": loan["requested_loan_amount"],
         "existing_monthly_emi": loan["existing_monthly_emi"],
@@ -43,46 +74,103 @@ def compute_features(application_id,
         "foir": loan["foir"],
         "loan_to_income_ratio": loan["loan_to_income_ratio"],
         "is_night_application": loan["is_night_application"],
+
+        # Bureau features
+        "cibil_score": bur["cibil_score"],
+        "num_credit_inquiries_30d": bur["num_credit_inquiries_30d"],
+        "num_credit_inquiries_90d": bur["num_credit_inquiries_90d"],
+        "has_previous_default": bur["has_previous_default"],
+        "credit_utilization_pct": bur["credit_utilization_pct"],
+        "credit_age_months": bur["credit_age_months"],
+        "num_active_loans": bur["num_active_loans"],
     }
 
-    features["short_employment"] = int(loan["employment_years"] < 1)
+    # ── Derived Features ─────────────────
+    features["short_employment"] = int(
+        loan["employment_years"] < 1
+    )
+
     features["high_loan_short_emp"] = int(
-        features["short_employment"] == 1 and loan["loan_to_income_ratio"] > 4)
+        features["short_employment"] == 1
+        and loan["loan_to_income_ratio"] > 4
+    )
+
     features["dependents"] = int(loan["dependents"]) if "dependents" in loan.index else 0
-    features["high_dependents"] = int(features["dependents"] >= 4)
+
+    features["high_dependents"] = int(
+        features["dependents"] >= 4
+    )
+
     features["is_tier3"] = int(loan["city_tier"] == 3) if "city_tier" in loan.index else 0
+
     if "age" in loan.index:
         features["age_group_risk"] = 1 if (loan["age"] < 21 or loan["age"] > 58) else 0
     else:
         features["age_group_risk"] = 0
 
-    features["cibil_score"] = bur["cibil_score"]
-    features["num_credit_inquiries_30d"] = bur["num_credit_inquiries_30d"]
-    features["num_credit_inquiries_90d"] = bur["num_credit_inquiries_90d"]
-    features["has_previous_default"] = bur["has_previous_default"]
-    features["credit_utilization_pct"] = bur["credit_utilization_pct"]
-    features["credit_age_months"] = bur["credit_age_months"]
-    features["num_active_loans"] = bur["num_active_loans"]
     features["num_existing_loans"] = bur["num_active_loans"]
-    features["low_cibil"] = int(bur["cibil_score"] < 650)
-    features["high_inquiries"] = int(bur["num_credit_inquiries_30d"] >= 3)
-    features["foir_cibil_risk"] = int(loan["foir"] > 55 and bur["cibil_score"] < 680)
-    features["high_utilization"] = int(bur["credit_utilization_pct"] > 70)
-    features["inquiry_velocity"] = float(
-        bur["num_credit_inquiries_30d"] / max(bur["num_credit_inquiries_90d"], 1))
-    features["multiple_loans"] = int(bur["num_active_loans"] >= 3)
 
-    features["total_emi_bounces"] = int(bank["emi_bounces"].sum())
-    features["avg_emi_bounces"] = float(bank["emi_bounces"].mean())
-    features["avg_min_balance"] = float(bank["min_eod_balance"].mean())
-    features["avg_credits"] = float(bank["total_credits"].mean())
+    features["low_cibil"] = int(
+        bur["cibil_score"] < 650
+    )
+
+    features["high_inquiries"] = int(
+        bur["num_credit_inquiries_30d"] >= 3
+    )
+
+    features["foir_cibil_risk"] = int(
+        loan["foir"] > 55 and bur["cibil_score"] < 680
+    )
+
+    features["high_utilization"] = int(
+        bur["credit_utilization_pct"] > 70
+    )
+
+    features["inquiry_velocity"] = float(
+        bur["num_credit_inquiries_30d"] / max(bur["num_credit_inquiries_90d"], 1)
+    )
+
+    features["multiple_loans"] = int(
+        bur["num_active_loans"] >= 3
+    )
+
+    # ── Bank Features ─────────────────
+    features["total_emi_bounces"] = int(
+        bank["emi_bounces"].sum()
+    )
+
+    features["avg_emi_bounces"] = float(
+        bank["emi_bounces"].mean()
+    )
+
+    features["avg_min_balance"] = float(
+        bank["min_eod_balance"].mean()
+    )
+
+    features["avg_credits"] = float(
+        bank["total_credits"].mean()
+    )
+
     features["income_bank_mismatch"] = float(
-        abs(loan["monthly_income"] - features["avg_credits"]) /
-        max(loan["monthly_income"], 1) * 100)
-    features["has_emi_bounces"] = int(features["total_emi_bounces"] > 0)
-    features["low_balance_flag"] = int(features["avg_min_balance"] < 5000)
+        abs(
+            loan["monthly_income"]
+            - features["avg_credits"]
+        )
+        / max(loan["monthly_income"], 1)
+        * 100
+    )
+
+    features["has_emi_bounces"] = int(
+        features["total_emi_bounces"] > 0
+    )
+
+    features["low_balance_flag"] = int(
+        features["avg_min_balance"] < 5000
+    )
+
     features["inquiry_bounce_combo"] = int(
-        features["high_inquiries"] == 1 and features["has_emi_bounces"] == 1)
+        features["high_inquiries"] == 1 and features["has_emi_bounces"] == 1
+    )
 
     if "cheque_bounces" in bank.columns:
         features["total_cheque_bounces"] = int(bank["cheque_bounces"].sum())
@@ -99,40 +187,77 @@ def compute_features(application_id,
         features["salary_months"] = 0
         features["irregular_salary"] = 0
 
-    missing_gst = gst[gst["filing_status"] == "Missing"]
-    features["gst_missing_quarters"] = len(missing_gst)
-    features["is_self_employed"] = int(loan["employment_type"] == "Self-Employed")
+    # ── GST Features ─────────────────
+    missing_gst = gst[
+        gst["filing_status"] == "Missing"
+    ]
+
+    features["gst_missing_quarters"] = len(
+        missing_gst
+    )
+
+    features["is_self_employed"] = int(
+        loan["employment_type"]
+        == "Self-Employed"
+    )
+
     features["self_emp_gst_risk"] = int(
-        features["is_self_employed"] == 1 and features["gst_missing_quarters"] >= 2)
+        features["is_self_employed"] == 1 and features["gst_missing_quarters"] >= 2
+    )
 
+    # ── Behavioural / Application Features ─────────────────
     features["night_high_foir"] = int(
-        loan["is_night_application"] == 1 and loan["foir"] > 50)
+        loan["is_night_application"] == 1 and loan["foir"] > 50
+    )
 
+    # ── Return all features ─────────────────
     return features
 
 
-# ── Bridge Function (called by /api/score) ─────────────────
-def compute_features_for_application(application_id: str) -> dict:
-    """
-    Takes one application_id.
-    Returns all features as a dict.
-    Called by Divya's /api/score API.
+# ── API Bridge Function ─────────────────
+def compute_features_for_application(
+    application_id: str
+) -> dict:
 
-    Loads CSVs fresh on every call so the API always
-    sees the latest data (no stale global state).
-    """
-    # Step A: Load all 4 CSVs — same folder as this file
-    loans_df = pd.read_csv(os.path.join(DATA_DIR, "loan_applications.csv"))
-    bank_df  = pd.read_csv(os.path.join(DATA_DIR, "bank_statements.csv"))
-    bur_df   = pd.read_csv(os.path.join(DATA_DIR, "bureau_data.csv"))
-    gst_df   = pd.read_csv(os.path.join(DATA_DIR, "gst_filings.csv"))
+    # Reload fresh CSVs every API call
+    loans_df = pd.read_csv(
+        os.path.join(
+            DATA_DIR,
+            "loan_applications.csv"
+        )
+    )
 
-    # Step B: Validate the application_id exists before computing
-    if application_id not in loans_df["application_id"].values:
-        raise ValueError(f"Application ID '{application_id}' not found.")
+    bank_df = pd.read_csv(
+        os.path.join(
+            DATA_DIR,
+            "bank_statements.csv"
+        )
+    )
 
-    # Step C: Delegate ALL feature computation to the existing function,
-    #         passing in the freshly loaded dataframes
+    bur_df = pd.read_csv(
+        os.path.join(
+            DATA_DIR,
+            "bureau_data.csv"
+        )
+    )
+
+    gst_df = pd.read_csv(
+        os.path.join(
+            DATA_DIR,
+            "gst_filings.csv"
+        )
+    )
+
+    # Validate application id
+    if application_id not in loans_df[
+        "application_id"
+    ].values:
+
+        raise ValueError(
+            f"Application ID '{application_id}' not found."
+        )
+
+    # Compute features
     features = compute_features(
         application_id,
         loans_df=loans_df,
@@ -144,17 +269,31 @@ def compute_features_for_application(application_id: str) -> dict:
     return features
 
 
-# ── Script entry point (unchanged) ──────────────────
+# ── Run script directly ─────────────────
 if __name__ == "__main__":
+
     application_id = "APP-000001"
-    result = compute_features(application_id)
+
+    result = compute_features(
+        application_id
+    )
+
     print("=" * 60)
     print("FEATURE ENGINEERING OUTPUT")
     print("=" * 60)
-    print(f"Application ID: {application_id}")
-    print(f"Total Features: {len(result)}")
+
+    print(
+        f"Application ID: {application_id}"
+    )
+
+    print(
+        f"Total Features: {len(result)}"
+    )
+
     print("\nFeature Names:")
     print(list(result.keys()))
+
     print("\nFeature Values:")
+
     for key, value in result.items():
         print(f"{key}: {value}")
