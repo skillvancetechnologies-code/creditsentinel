@@ -15,13 +15,9 @@ app = FastAPI()
 # LOAD DATASETS
 # ==============================
 
-loan_apps = pd.read_csv(
-    r"C:\Users\sunny\Desktop\loan_applications.csv"
-)
+loan_apps = pd.read_csv("data/loan_applications.csv")
 
-bureau = pd.read_csv(
-    r"C:\Users\sunny\Desktop\bureau_data.csv"
-)
+bureau = pd.read_csv("data/bureau_data.csv")
 
 # ==============================
 # MERGE DATASETS
