@@ -1,6 +1,8 @@
 fastapi
 uvicorn
 pandas
+numpy
+requests
 groq
 python-multipart
-requests
+pydantic
