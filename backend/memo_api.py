@@ -31,15 +31,25 @@ def home():
 # ==============================
 # LOAD DATASETS
 # ==============================
+import os
+
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 loan_apps = pd.read_csv(
-    r"C:\Users\sunny\Desktop\loan_applications.csv"
+    os.path.join(
+        BASE_DIR,
+        "loan_applications.csv"
+    )
 )
 
 bureau = pd.read_csv(
-    r"C:\Users\sunny\Desktop\bureau_data.csv"
+    os.path.join(
+        BASE_DIR,
+        "bureau_data.csv"
+    )
 )
-
 # ==============================
 # MERGE DATASETS
 # ==============================
@@ -177,7 +187,7 @@ def generate_memo(req: MemoRequest):
         # ==============================
 
         score_response = requests.post(
-            "http://localhost:8000/api/score",
+            "https://creditsentinel-api-1.onrender.com/docs",
             json={
                 "application_id": str(
                     req.application_id
