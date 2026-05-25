@@ -1,322 +1,420 @@
 from fastapi import FastAPI
-import pandas as pd
+from fastapi.middleware.cors import (
+    CORSMiddleware
+)
 from pydantic import BaseModel
+import pandas as pd
+import os
+
+# ==============================
+# FASTAPI APP
+# ==============================
 
 app = FastAPI()
+
+# ==============================
+# CORS
+# ==============================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ==============================
+# BASE DIRECTORY
+# ==============================
+
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 # ==============================
 # LOAD DATASETS
 # ==============================
 
 loan_apps = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\loan_applications.csv"
+    os.path.join(
+        BASE_DIR,
+        "loan_applications.csv"
+    )
 )
 
 bureau = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\bureau_data.csv"
-)
-
-bank = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\bank_statements.csv"
-)
-
-gst = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\gst_filings.csv"
+    os.path.join(
+        BASE_DIR,
+        "bureau_data.csv"
+    )
 )
 
 # ==============================
-# CREATE FEATURES
+# MERGE DATASETS
 # ==============================
 
-# Bank features
-bank_features = bank.groupby(
-    "application_id"
-).agg({
-    "emi_bounces": "sum"
-}).reset_index()
-
-bank_features.rename(columns={
-    "emi_bounces": "total_emi_bounces"
-}, inplace=True)
-
-# Dummy avg credits
-bank_features["avg_credits"] = 50000
-
-# GST missing quarters
-gst_features = gst.groupby(
-    "application_id"
-).size().reset_index(
-    name="gst_missing_quarters"
-)
-
-# Merge all datasets
 features = loan_apps.merge(
     bureau,
     on="application_id",
     how="left"
 )
 
-features = features.merge(
-    bank_features,
-    on="application_id",
-    how="left"
-)
-
-features = features.merge(
-    gst_features,
-    on="application_id",
-    how="left"
-)
-
-# Fill missing values
-features["total_emi_bounces"] = (
-    features["total_emi_bounces"].fillna(0)
-)
-
-features["gst_missing_quarters"] = (
-    features["gst_missing_quarters"].fillna(0)
-)
-
-features["avg_credits"] = (
-    features["avg_credits"].fillna(50000)
-)
-
-# Derived features
-features["income_bank_mismatch"] = abs(
-    features["monthly_income"] -
-    features["avg_credits"]
-) / features["monthly_income"] * 100
-
-features["is_self_employed"] = (
-    features["employment_type"] == "Self-Employed"
-).astype(int)
-
 # ==============================
-# RED FLAG ENGINE
+# REQUEST MODELS
 # ==============================
 
-def detect_red_flags(app):
+class RedFlagRequest(BaseModel):
 
-    flags = []
+    application_id: str
 
-    # Rule 1
-    if app['foir'] > 60:
-        flags.append({
-            "rule": "High FOIR",
-            "evidence": (
-                f"FOIR is {app['foir']}%"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 2
-    if app['cibil_score'] < 650:
-        flags.append({
-            "rule": "Low CIBIL",
-            "evidence": (
-                f"CIBIL score is "
-                f"{app['cibil_score']}"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 3
-    if app['num_credit_inquiries_30d'] >= 3:
-        flags.append({
-            "rule": "High Inquiries",
-            "evidence": (
-                f"{app['num_credit_inquiries_30d']} "
-                f"inquiries in 30 days"
-            ),
-            "severity": "Medium"
-        })
-
-    # Rule 4
-    lti = (
-        app['requested_loan_amount'] /
-        (app['monthly_income'] * 12)
-    )
-
-    if lti > 5:
-        flags.append({
-            "rule": "Loan Exceeds 5x Income",
-            "evidence": (
-                f"Loan is {lti:.1f}x "
-                f"annual income"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 5
-    if app['has_previous_default'] == 1:
-        flags.append({
-            "rule": "Previous Default",
-            "evidence": (
-                "Previous default "
-                "found"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 6
-    if app['is_night_application'] == 1:
-        flags.append({
-            "rule": "Night Application",
-            "evidence": (
-                "Submitted between "
-                "11PM and 5AM"
-            ),
-            "severity": "Medium"
-        })
-
-    # Rule 7
-    if app['total_emi_bounces'] > 0:
-        flags.append({
-            "rule": "EMI Bounces",
-            "evidence": (
-                f"{app['total_emi_bounces']} "
-                f"bounces"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 8
-    if app['income_bank_mismatch'] > 25:
-        flags.append({
-            "rule": "Income Mismatch",
-            "evidence": (
-                f"{round(app['income_bank_mismatch'],1)}% "
-                f"mismatch"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 9
-    if (
-        app['is_self_employed'] == 1
-        and app['gst_missing_quarters'] >= 2
-    ):
-        flags.append({
-            "rule": "GST Filing Gaps",
-            "evidence": (
-                f"{int(app['gst_missing_quarters'])} "
-                f"missing quarters"
-            ),
-            "severity": "High"
-        })
-
-    # Rule 10
-    if (
-        app['employment_years'] < 1
-        and app['foir'] > 50
-    ):
-        flags.append({
-            "rule": "Short Emp + High FOIR",
-            "evidence": (
-                f"{app['employment_years']} years "
-                f"employment"
-            ),
-            "severity": "High"
-        })
-
-    return flags
-
-# ==============================
-# API ENDPOINT
-# ==============================
-
-@app.post("/api/redflags")
-def get_red_flags(payload: dict):
-
-    application_id = payload["application_id"]
-
-    app_data = features[
-        features["application_id"] ==
-        application_id
-    ]
-
-    if len(app_data) == 0:
-
-        return {
-            "error": "Application not found"
-        }
-
-    app_row = app_data.iloc[0]
-
-    flags = detect_red_flags(app_row)
-
-    highest_severity = "Low"
-
-    if any(
-        f["severity"] == "High"
-        for f in flags
-    ):
-        highest_severity = "High"
-
-    elif any(
-        f["severity"] == "Medium"
-        for f in flags
-    ):
-        highest_severity = "Medium"
-
-    return {
-        "application_id": application_id,
-        "flag_count": len(flags),
-        "highest_severity": highest_severity,
-        "flags": flags
-    }
-# ==============================
-# BATCH REQUEST MODEL
-# ==============================
 
 class BatchRequest(BaseModel):
 
     application_ids: list[str]
 
 # ==============================
-# COMPUTE RED FLAGS
+# COLOR MAPPING
+# ==============================
+
+def severity_color(severity):
+
+    if severity == "High":
+
+        return "red"
+
+    elif severity == "Medium":
+
+        return "orange"
+
+    else:
+
+        return "yellow"
+
+# ==============================
+# RED FLAG ENGINE
 # ==============================
 
 def compute_red_flags(application_id):
 
     app_data = features[
-        features["application_id"] ==
-        application_id
+        features["application_id"].astype(str)
+        == str(application_id)
     ]
 
-    if len(app_data) == 0:
+    if app_data.empty:
 
         return {
-            "application_id": application_id,
             "error": "Application not found"
         }
 
     app_row = app_data.iloc[0]
 
-    flags = detect_red_flags(app_row)
+    flags = []
+
+    # ==============================
+    # RULE 1 — LOW CIBIL
+    # ==============================
+
+    if app_row["cibil_score"] < 600:
+
+        flags.append({
+
+            "rule": "Low CIBIL",
+
+            "evidence":
+            f"CIBIL score is "
+            f"{app_row['cibil_score']}",
+
+            "severity": "High",
+
+            "color": severity_color(
+                "High"
+            )
+        })
+
+    # ==============================
+    # RULE 2 — HIGH FOIR
+    # ==============================
+
+    if app_row["foir"] > 60:
+
+        flags.append({
+
+            "rule": "High FOIR",
+
+            "evidence":
+            f"FOIR is "
+            f"{app_row['foir']}%",
+
+            "severity": "High",
+
+            "color": severity_color(
+                "High"
+            )
+        })
+
+    # ==============================
+    # RULE 3 — EMI BOUNCES
+    # ==============================
+
+    if (
+        "emi_bounces"
+        in app_row.index
+    ):
+
+        if app_row["emi_bounces"] > 0:
+
+            flags.append({
+
+                "rule": "EMI Bounces",
+
+                "evidence":
+                f"{app_row['emi_bounces']} bounces",
+
+                "severity": "High",
+
+                "color": severity_color(
+                    "High"
+                )
+            })
+
+    # ==============================
+    # RULE 4 — HIGH INQUIRIES
+    # ==============================
+
+    if (
+        "recent_inquiries"
+        in app_row.index
+    ):
+
+        if app_row["recent_inquiries"] >= 3:
+
+            flags.append({
+
+                "rule": "High Inquiries",
+
+                "evidence":
+                f"{app_row['recent_inquiries']} "
+                f"inquiries in 30 days",
+
+                "severity": "Medium",
+
+                "color": severity_color(
+                    "Medium"
+                )
+            })
+
+    # ==============================
+    # RULE 5 — INCOME MISMATCH
+    # ==============================
+
+    if (
+        "income_mismatch_percent"
+        in app_row.index
+    ):
+
+        if (
+            app_row[
+                "income_mismatch_percent"
+            ] > 25
+        ):
+
+            flags.append({
+
+                "rule": "Income Mismatch",
+
+                "evidence":
+                f"{app_row['income_mismatch_percent']}% mismatch",
+
+                "severity": "High",
+
+                "color": severity_color(
+                    "High"
+                )
+            })
+
+    # ==============================
+    # RULE 6 — GST GAPS
+    # ==============================
+
+    if (
+        "gst_gap_quarters"
+        in app_row.index
+    ):
+
+        if app_row["gst_gap_quarters"] > 0:
+
+            flags.append({
+
+                "rule": "GST Gaps",
+
+                "evidence":
+                f"{app_row['gst_gap_quarters']} quarters missing",
+
+                "severity": "Medium",
+
+                "color": severity_color(
+                    "Medium"
+                )
+            })
+
+    # ==============================
+    # RULE 7 — DEFAULT HISTORY
+    # ==============================
+
+    if (
+        "has_default_history"
+        in app_row.index
+    ):
+
+        if (
+            app_row[
+                "has_default_history"
+            ] == 1
+        ):
+
+            flags.append({
+
+                "rule": "Default History",
+
+                "evidence":
+                "Previous default found",
+
+                "severity": "High",
+
+                "color": severity_color(
+                    "High"
+                )
+            })
+
+    # ==============================
+    # RULE 8 — NIGHT TRANSACTIONS
+    # ==============================
+
+    if (
+        "night_transactions"
+        in app_row.index
+    ):
+
+        if (
+            app_row[
+                "night_transactions"
+            ] > 10
+        ):
+
+            flags.append({
+
+                "rule": "Night Transactions",
+
+                "evidence":
+                f"{app_row['night_transactions']} "
+                f"night transactions",
+
+                "severity": "Medium",
+
+                "color": severity_color(
+                    "Medium"
+                )
+            })
+
+    # ==============================
+    # RULE 9 — SHORT EMPLOYMENT
+    # ==============================
+
+    if (
+        app_row["employment_years"]
+        < 1
+    ):
+
+        flags.append({
+
+            "rule": "Short Employment",
+
+            "evidence":
+            f"{app_row['employment_years']} years",
+
+            "severity": "Low",
+
+            "color": severity_color(
+                "Low"
+            )
+        })
+
+    # ==============================
+    # RULE 10 — LOW INCOME
+    # ==============================
+
+    if (
+        app_row["monthly_income"]
+        < 25000
+    ):
+
+        flags.append({
+
+            "rule": "Low Income",
+
+            "evidence":
+            f"Income is "
+            f"{app_row['monthly_income']}",
+
+            "severity": "Medium",
+
+            "color": severity_color(
+                "Medium"
+            )
+        })
+
+    # ==============================
+    # HIGHEST SEVERITY
+    # ==============================
 
     highest_severity = "Low"
 
-    if any(
-        f["severity"] == "High"
-        for f in flags
-    ):
+    for flag in flags:
 
-        highest_severity = "High"
+        if flag["severity"] == "High":
 
-    elif any(
-        f["severity"] == "Medium"
-        for f in flags
-    ):
+            highest_severity = "High"
 
-        highest_severity = "Medium"
+            break
+
+        elif (
+            flag["severity"]
+            == "Medium"
+        ):
+
+            highest_severity = "Medium"
+
+    # ==============================
+    # FINAL RESPONSE
+    # ==============================
 
     return {
-        "application_id": application_id,
-        "flag_count": len(flags),
-        "highest_severity": highest_severity,
-        "flags": flags
+
+        "application_id":
+        str(application_id),
+
+        "flag_count":
+        len(flags),
+
+        "highest_severity":
+        highest_severity,
+
+        "flags":
+        flags
     }
+
+# ==============================
+# SINGLE ENDPOINT
+# ==============================
+
+@app.post("/api/redflags")
+def redflags(req: RedFlagRequest):
+
+    return compute_red_flags(
+        req.application_id
+    )
 
 # ==============================
 # BATCH ENDPOINT
@@ -329,9 +427,11 @@ def batch_redflags(req: BatchRequest):
 
     for app_id in req.application_ids:
 
-        result = compute_red_flags(app_id)
+        flags = compute_red_flags(
+            app_id
+        )
 
-        results.append(result)
+        results.append(flags)
 
     return {
         "results": results
