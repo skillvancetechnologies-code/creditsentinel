@@ -1,7 +1,8 @@
 !pip install -q fastapi uvicorn pyngrok nest_asyncio python-multipart pandas numpy scikit-learn xgboost joblib
 !pip install -q pyngrok
 # LOAD TRAINED MODEL
-model = joblib.load("lightgbm_0.8106.pkl")
+from config import Config
+model = joblib.load(Config.MODEL_PATH)
 
 print("✅ Real model loaded")
 print(type(model))
@@ -53,9 +54,8 @@ nest_asyncio.apply()
 # =========================================================
 # LOAD MODEL
 # =========================================================
-model = joblib.load(
-    "creditsentinel_model_v1.pkl"
-)
+from config import Config
+model = joblib.load(Config.MODEL_PATH)
 
 print("✅ Real model loaded")
 print(type(model))
