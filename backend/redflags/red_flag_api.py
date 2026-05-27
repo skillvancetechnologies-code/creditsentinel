@@ -421,3 +421,9 @@ def root():
         "message":
         "Red Flags API Running Successfully"
     }
+@app.get("/debug-columns")
+def debug_columns():
+
+    return {
+        "columns": list(features.columns)
+    }
