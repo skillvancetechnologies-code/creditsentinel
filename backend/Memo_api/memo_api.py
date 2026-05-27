@@ -18,7 +18,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -31,15 +31,19 @@ def home():
 # ==============================
 # LOAD DATASETS
 # ==============================
+import os
+
+BASE_DIR = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
 loan_apps = pd.read_csv(
-    r"C:\Users\sunny\Desktop\loan_applications.csv"
+    os.path.join(BASE_DIR, "loan_applications.csv")
 )
 
 bureau = pd.read_csv(
-    r"C:\Users\sunny\Desktop\bureau_data.csv"
+    os.path.join(BASE_DIR, "bureau_data.csv")
 )
-
 # ==============================
 # MERGE DATASETS
 # ==============================
