@@ -1,7 +1,4 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import (
-    CORSMiddleware
-)
 from pydantic import BaseModel
 import pandas as pd
 import os
@@ -13,23 +10,16 @@ import os
 app = FastAPI()
 
 # ==============================
-# CORS
-# ==============================
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# ==============================
-# BASE DIRECTORY
+# BASE PATH
 # ==============================
 
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
+)
+
+DATA_DIR = os.path.join(
+    BASE_DIR,
+    "data"
 )
 
 # ==============================
@@ -38,15 +28,29 @@ BASE_DIR = os.path.dirname(
 
 loan_apps = pd.read_csv(
     os.path.join(
-        BASE_DIR,
+        DATA_DIR,
         "loan_applications.csv"
     )
 )
 
 bureau = pd.read_csv(
     os.path.join(
-        BASE_DIR,
+        DATA_DIR,
         "bureau_data.csv"
+    )
+)
+
+banking = pd.read_csv(
+    os.path.join(
+        DATA_DIR,
+        "banking_data.csv"
+    )
+)
+
+gst = pd.read_csv(
+    os.path.join(
+        DATA_DIR,
+        "gst_data.csv"
     )
 )
 
@@ -56,6 +60,18 @@ bureau = pd.read_csv(
 
 features = loan_apps.merge(
     bureau,
+    on="application_id",
+    how="left"
+)
+
+features = features.merge(
+    banking,
+    on="application_id",
+    how="left"
+)
+
+features = features.merge(
+    gst,
     on="application_id",
     how="left"
 )
@@ -77,19 +93,19 @@ class BatchRequest(BaseModel):
 # COLOR MAPPING
 # ==============================
 
-def severity_color(severity):
+def get_color(severity):
 
-    if severity == "High":
+    severity = severity.lower()
+
+    if severity == "high":
 
         return "red"
 
-    elif severity == "Medium":
+    elif severity == "medium":
 
         return "orange"
 
-    else:
-
-        return "yellow"
+    return "yellow"
 
 # ==============================
 # RED FLAG ENGINE
@@ -105,264 +121,218 @@ def compute_red_flags(application_id):
     if app_data.empty:
 
         return {
-            "error": "Application not found"
+
+            "application_id": application_id,
+
+            "flag_count": 0,
+
+            "highest_severity": "Low",
+
+            "flags": []
         }
 
-    app_row = app_data.iloc[0]
+    row = app_data.iloc[0]
 
     flags = []
 
     # ==============================
-    # RULE 1 — LOW CIBIL
+    # LOW CIBIL
     # ==============================
 
-    if app_row["cibil_score"] < 600:
+    if float(row["cibil_score"]) < 600:
+
+        severity = "High"
 
         flags.append({
 
-            "rule": "Low CIBIL",
+            "rule": "Low CIBIL Score",
 
             "evidence":
-            f"CIBIL score is "
-            f"{app_row['cibil_score']}",
+            f"CIBIL score is {row['cibil_score']}",
 
-            "severity": "High",
+            "severity": severity,
 
-            "color": severity_color(
-                "High"
-            )
+            "color": get_color(severity)
         })
 
     # ==============================
-    # RULE 2 — HIGH FOIR
+    # HIGH FOIR
     # ==============================
 
-    if app_row["foir"] > 60:
+    if float(row["foir"]) > 60:
+
+        severity = "High"
 
         flags.append({
 
             "rule": "High FOIR",
 
             "evidence":
-            f"FOIR is "
-            f"{app_row['foir']}%",
+            f"FOIR is {row['foir']}%",
 
-            "severity": "High",
+            "severity": severity,
 
-            "color": severity_color(
-                "High"
-            )
+            "color": get_color(severity)
         })
 
     # ==============================
-    # RULE 3 — EMI BOUNCES
+    # HIGH INQUIRIES
     # ==============================
 
-    if (
-        "emi_bounces"
-        in app_row.index
-    ):
+    if float(row["recent_inquiries"]) >= 3:
 
-        if app_row["emi_bounces"] > 0:
-
-            flags.append({
-
-                "rule": "EMI Bounces",
-
-                "evidence":
-                f"{app_row['emi_bounces']} bounces",
-
-                "severity": "High",
-
-                "color": severity_color(
-                    "High"
-                )
-            })
-
-    # ==============================
-    # RULE 4 — HIGH INQUIRIES
-    # ==============================
-
-    if (
-        "recent_inquiries"
-        in app_row.index
-    ):
-
-        if app_row["recent_inquiries"] >= 3:
-
-            flags.append({
-
-                "rule": "High Inquiries",
-
-                "evidence":
-                f"{app_row['recent_inquiries']} "
-                f"inquiries in 30 days",
-
-                "severity": "Medium",
-
-                "color": severity_color(
-                    "Medium"
-                )
-            })
-
-    # ==============================
-    # RULE 5 — INCOME MISMATCH
-    # ==============================
-
-    if (
-        "income_mismatch_percent"
-        in app_row.index
-    ):
-
-        if (
-            app_row[
-                "income_mismatch_percent"
-            ] > 25
-        ):
-
-            flags.append({
-
-                "rule": "Income Mismatch",
-
-                "evidence":
-                f"{app_row['income_mismatch_percent']}% mismatch",
-
-                "severity": "High",
-
-                "color": severity_color(
-                    "High"
-                )
-            })
-
-    # ==============================
-    # RULE 6 — GST GAPS
-    # ==============================
-
-    if (
-        "gst_gap_quarters"
-        in app_row.index
-    ):
-
-        if app_row["gst_gap_quarters"] > 0:
-
-            flags.append({
-
-                "rule": "GST Gaps",
-
-                "evidence":
-                f"{app_row['gst_gap_quarters']} quarters missing",
-
-                "severity": "Medium",
-
-                "color": severity_color(
-                    "Medium"
-                )
-            })
-
-    # ==============================
-    # RULE 7 — DEFAULT HISTORY
-    # ==============================
-
-    if (
-        "has_default_history"
-        in app_row.index
-    ):
-
-        if (
-            app_row[
-                "has_default_history"
-            ] == 1
-        ):
-
-            flags.append({
-
-                "rule": "Default History",
-
-                "evidence":
-                "Previous default found",
-
-                "severity": "High",
-
-                "color": severity_color(
-                    "High"
-                )
-            })
-
-    # ==============================
-    # RULE 8 — NIGHT TRANSACTIONS
-    # ==============================
-
-    if (
-        "night_transactions"
-        in app_row.index
-    ):
-
-        if (
-            app_row[
-                "night_transactions"
-            ] > 10
-        ):
-
-            flags.append({
-
-                "rule": "Night Transactions",
-
-                "evidence":
-                f"{app_row['night_transactions']} "
-                f"night transactions",
-
-                "severity": "Medium",
-
-                "color": severity_color(
-                    "Medium"
-                )
-            })
-
-    # ==============================
-    # RULE 9 — SHORT EMPLOYMENT
-    # ==============================
-
-    if (
-        app_row["employment_years"]
-        < 1
-    ):
+        severity = "Medium"
 
         flags.append({
 
-            "rule": "Short Employment",
+            "rule": "High Inquiries",
 
             "evidence":
-            f"{app_row['employment_years']} years",
+            f"{row['recent_inquiries']} inquiries in 30 days",
 
-            "severity": "Low",
+            "severity": severity,
 
-            "color": severity_color(
-                "Low"
-            )
+            "color": get_color(severity)
         })
 
     # ==============================
-    # RULE 10 — LOW INCOME
+    # EMI BOUNCES
     # ==============================
 
-    if (
-        app_row["monthly_income"]
-        < 25000
-    ):
+    if float(row["emi_bounces"]) >= 1:
+
+        severity = "High"
 
         flags.append({
 
-            "rule": "Low Income",
+            "rule": "EMI Bounces",
 
             "evidence":
-            f"Income is "
-            f"{app_row['monthly_income']}",
+            f"{row['emi_bounces']} bounces",
 
-            "severity": "Medium",
+            "severity": severity,
 
-            "color": severity_color(
-                "Medium"
-            )
+            "color": get_color(severity)
+        })
+
+    # ==============================
+    # INCOME MISMATCH
+    # ==============================
+
+    if float(row["income_mismatch_percent"]) > 25:
+
+        severity = "High"
+
+        flags.append({
+
+            "rule": "Income Mismatch",
+
+            "evidence":
+            f"{row['income_mismatch_percent']}% mismatch",
+
+            "severity": severity,
+
+            "color": get_color(severity)
+        })
+
+    # ==============================
+    # GST GAPS
+    # ==============================
+
+    if float(row["missing_gst_quarters"]) >= 4:
+
+        severity = "High"
+
+        flags.append({
+
+            "rule": "GST Filing Gaps",
+
+            "evidence":
+            f"{row['missing_gst_quarters']} missing quarters",
+
+            "severity": severity,
+
+            "color": get_color(severity)
+        })
+
+    # ==============================
+    # LOW BANK BALANCE
+    # ==============================
+
+    if float(row["avg_bank_balance"]) < 10000:
+
+        severity = "Medium"
+
+        flags.append({
+
+            "rule": "Low Bank Balance",
+
+            "evidence":
+            f"Average balance is {row['avg_bank_balance']}",
+
+            "severity": severity,
+
+            "color": get_color(severity)
+        })
+
+    # ==============================
+    # CREDIT UTILIZATION
+    # ==============================
+
+    if float(row["credit_utilization"]) > 80:
+
+        severity = "Medium"
+
+        flags.append({
+
+            "rule": "High Credit Utilization",
+
+            "evidence":
+            f"{row['credit_utilization']}% utilized",
+
+            "severity": severity,
+
+            "color": get_color(severity)
+        })
+
+    # ==============================
+    # LOAN DEFAULTS
+    # ==============================
+
+    if float(row["loan_defaults"]) >= 1:
+
+        severity = "High"
+
+        flags.append({
+
+            "rule": "Loan Defaults",
+
+            "evidence":
+            f"{row['loan_defaults']} defaults found",
+
+            "severity": severity,
+
+            "color": get_color(severity)
+        })
+
+    # ==============================
+    # NIGHT TRANSACTIONS
+    # ==============================
+
+    if float(row["night_transactions_percent"]) > 40:
+
+        severity = "Medium"
+
+        flags.append({
+
+            "rule": "High Night Transactions",
+
+            "evidence":
+            f"{row['night_transactions_percent']}% night activity",
+
+            "severity": severity,
+
+            "color": get_color(severity)
         })
 
     # ==============================
@@ -376,13 +346,9 @@ def compute_red_flags(application_id):
         if flag["severity"] == "High":
 
             highest_severity = "High"
-
             break
 
-        elif (
-            flag["severity"]
-            == "Medium"
-        ):
+        elif flag["severity"] == "Medium":
 
             highest_severity = "Medium"
 
@@ -392,17 +358,13 @@ def compute_red_flags(application_id):
 
     return {
 
-        "application_id":
-        str(application_id),
+        "application_id": str(application_id),
 
-        "flag_count":
-        len(flags),
+        "flag_count": len(flags),
 
-        "highest_severity":
-        highest_severity,
+        "highest_severity": highest_severity,
 
-        "flags":
-        flags
+        "flags": flags
     }
 
 # ==============================
@@ -427,12 +389,22 @@ def batch_redflags(req: BatchRequest):
 
     for app_id in req.application_ids:
 
-        flags = compute_red_flags(
-            app_id
+        results.append(
+            compute_red_flags(app_id)
         )
-
-        results.append(flags)
 
     return {
         "results": results
+    }
+
+# ==============================
+# ROOT
+# ==============================
+
+@app.get("/")
+def root():
+
+    return {
+        "message":
+        "Red Flags API Running"
     }
