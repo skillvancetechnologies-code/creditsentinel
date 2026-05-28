@@ -67,7 +67,7 @@ features = features.merge(
 # DEBUG COLUMN NAMES
 # ==============================
 
-print("ALL AVAILABLE COLUMNS:")
+print("\nALL AVAILABLE COLUMNS:\n")
 
 print(list(features.columns))
 
@@ -100,11 +100,13 @@ severity_colors = {
 # SAFE COLUMN GETTER
 # ==============================
 
-def safe_get(app, column, default=0):
+def safe_get(app, possible_columns, default=0):
 
-    if column in app.index:
+    for col in possible_columns:
 
-        return app[column]
+        if col in app.index:
+
+            return app[col]
 
     return default
 
@@ -129,54 +131,85 @@ def compute_red_flags(application_id):
 
     flags = []
 
+    # ==============================
+    # SAFE COLUMN MAPPING
+    # ==============================
+
     cibil_score = safe_get(
         app,
-        "cibil_score"
+        ["cibil_score"]
     )
 
     foir = safe_get(
         app,
-        "foir"
+        ["foir"]
     )
 
     recent_inquiries = safe_get(
         app,
-        "recent_inquiries"
+        [
+            "recent_inquiries",
+            "credit_inquiries",
+            "num_inquiries"
+        ]
     )
 
     emi_bounces = safe_get(
         app,
-        "emi_bounces"
+        [
+            "emi_bounces",
+            "bounce_count"
+        ]
     )
 
     missing_gst_quarters = safe_get(
         app,
-        "missing_gst_quarters"
+        [
+            "missing_gst_quarters",
+            "gst_gaps",
+            "gst_missing_quarters"
+        ]
     )
 
     income_mismatch_pct = safe_get(
         app,
-        "income_mismatch_pct"
+        [
+            "income_mismatch_pct",
+            "income_mismatch"
+        ]
     )
 
     night_txn_flag = safe_get(
         app,
-        "night_txn_flag"
+        [
+            "night_txn_flag",
+            "night_transactions"
+        ]
     )
 
     past_defaults = safe_get(
         app,
-        "past_defaults"
+        [
+            "past_defaults",
+            "default_history"
+        ]
     )
 
     avg_bank_balance = safe_get(
         app,
-        "avg_bank_balance"
+        [
+            "avg_bank_balance",
+            "average_bank_balance",
+            "bank_balance"
+        ]
     )
 
     employment_years = safe_get(
         app,
-        "employment_years"
+        [
+            "employment_years",
+            "work_experience_years"
+        ]
     )
 
     # ==============================
