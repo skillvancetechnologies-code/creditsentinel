@@ -16,7 +16,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -28,19 +29,19 @@ app.add_middleware(
 # ==============================
 
 loan_apps = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\loan_applications.csv"
+    "data/raw/loan_applications.csv"
 )
 
 bureau = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\bureau_data.csv"
+    "data/raw/bureau_data.csv"
 )
 
 banking = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\banking_data.csv"
+    "data/raw/banking_data.csv"
 )
 
 gst = pd.read_csv(
-    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\gst_data.csv"
+    "data/raw/gst_data.csv"
 )
 
 # ==============================
