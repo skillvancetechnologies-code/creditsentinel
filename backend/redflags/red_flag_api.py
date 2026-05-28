@@ -15,10 +15,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "*"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,19 +26,19 @@ app.add_middleware(
 # ==============================
 
 loan_apps = pd.read_csv(
-    "data/raw/loan_applications.csv"
+    "loan_applications.csv"
 )
 
 bureau = pd.read_csv(
-    "data/raw/bureau_data.csv"
+    "bureau_data.csv"
 )
 
 banking = pd.read_csv(
-    "data/raw/banking_data.csv"
+    "bank_statements.csv"
 )
 
 gst = pd.read_csv(
-    "data/raw/gst_data.csv"
+    "gst_filings.csv"
 )
 
 # ==============================
