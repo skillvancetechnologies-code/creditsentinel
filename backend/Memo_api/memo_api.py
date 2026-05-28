@@ -51,7 +51,7 @@ class MemoRequest(BaseModel):
 # GROQ CLIENT
 # ==============================
 
-client = Groq(api_key="YOUR_GROQ_API_KEY")  # REPLACE with your actual API key
+client = Groq(api_key="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")  # REPLACE with your actual API key
 
 # ==============================
 # FAST MEMO GENERATION
