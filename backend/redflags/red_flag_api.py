@@ -1,7 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
-import os
 
 # ==============================
 # FASTAPI APP
@@ -10,11 +10,17 @@ import os
 app = FastAPI()
 
 # ==============================
-# BASE DIRECTORY
+# CORS CONFIGURATION
 # ==============================
 
-BASE_DIR = os.path.dirname(
-    os.path.abspath(__file__)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ==============================
@@ -22,35 +28,23 @@ BASE_DIR = os.path.dirname(
 # ==============================
 
 loan_apps = pd.read_csv(
-    os.path.join(
-        BASE_DIR,
-        "loan_applications.csv"
-    )
+    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\loan_applications.csv"
 )
 
 bureau = pd.read_csv(
-    os.path.join(
-        BASE_DIR,
-        "bureau_data.csv"
-    )
+    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\bureau_data.csv"
 )
 
 banking = pd.read_csv(
-    os.path.join(
-        BASE_DIR,
-        "bank_statements.csv"
-    )
+    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\banking_data.csv"
 )
 
 gst = pd.read_csv(
-    os.path.join(
-        BASE_DIR,
-        "gst_filings.csv"
-    )
+    r"C:\Users\gurup\OneDrive\Desktop\creditsentinel\data\raw\gst_data.csv"
 )
 
 # ==============================
-# MERGE DATASETS
+# MERGE DATA
 # ==============================
 
 features = loan_apps.merge(
@@ -79,7 +73,6 @@ class RedFlagRequest(BaseModel):
 
     application_id: str
 
-
 class BatchRequest(BaseModel):
 
     application_ids: list[str]
@@ -88,21 +81,14 @@ class BatchRequest(BaseModel):
 # COLOR MAPPING
 # ==============================
 
-def get_color(severity):
+severity_colors = {
 
-    severity = severity.lower()
+    "High": "red",
 
-    if severity == "high":
+    "Medium": "orange",
 
-        return "red"
-
-    elif severity == "medium":
-
-        return "orange"
-
-    else:
-
-        return "yellow"
+    "Low": "yellow"
+}
 
 # ==============================
 # RED FLAG ENGINE
@@ -111,24 +97,17 @@ def get_color(severity):
 def compute_red_flags(application_id):
 
     app_data = features[
-        features["application_id"].astype(str)
-        == str(application_id)
+        features["application_id"] ==
+        application_id
     ]
 
-    if app_data.empty:
+    if len(app_data) == 0:
 
         return {
-
-            "application_id": application_id,
-
-            "flag_count": 0,
-
-            "highest_severity": "Low",
-
-            "flags": []
+            "error": "Application not found"
         }
 
-    row = app_data.iloc[0]
+    app = app_data.iloc[0]
 
     flags = []
 
@@ -136,218 +115,210 @@ def compute_red_flags(application_id):
     # RULE 1 — LOW CIBIL
     # ==============================
 
-    if float(row["cibil_score"]) < 600:
-
-        severity = "High"
+    if app["cibil_score"] < 600:
 
         flags.append({
 
-            "rule": "Low CIBIL Score",
+            "rule": "Low CIBIL",
 
             "evidence":
-            f"CIBIL score is {row['cibil_score']}",
+            f"CIBIL score is "
+            f"{app['cibil_score']}",
 
-            "severity": severity,
+            "severity": "High",
 
-            "color": get_color(severity)
+            "color": severity_colors["High"]
         })
 
     # ==============================
     # RULE 2 — HIGH FOIR
     # ==============================
 
-    if float(row["foir"]) > 60:
-
-        severity = "High"
+    if app["foir"] > 60:
 
         flags.append({
 
             "rule": "High FOIR",
 
             "evidence":
-            f"FOIR is {row['foir']}%",
+            f"FOIR is "
+            f"{app['foir']}%",
 
-            "severity": severity,
+            "severity": "High",
 
-            "color": get_color(severity)
+            "color": severity_colors["High"]
         })
 
     # ==============================
     # RULE 3 — HIGH INQUIRIES
     # ==============================
 
-    if float(row["num_credit_inquiries_30d"]) >= 3:
-
-        severity = "Medium"
+    if app["recent_inquiries"] >= 3:
 
         flags.append({
 
             "rule": "High Inquiries",
 
             "evidence":
-            f"{row['num_credit_inquiries_30d']} inquiries in 30 days",
+            f"{app['recent_inquiries']} "
+            f"inquiries in 30 days",
 
-            "severity": severity,
+            "severity": "Medium",
 
-            "color": get_color(severity)
+            "color": severity_colors["Medium"]
         })
 
     # ==============================
     # RULE 4 — EMI BOUNCES
     # ==============================
 
-    if float(row["emi_bounces"]) >= 1:
-
-        severity = "High"
+    if app["emi_bounces"] >= 1:
 
         flags.append({
 
             "rule": "EMI Bounces",
 
             "evidence":
-            f"{row['emi_bounces']} bounces",
+            f"{app['emi_bounces']} "
+            f"bounces",
 
-            "severity": severity,
+            "severity": "High",
 
-            "color": get_color(severity)
+            "color": severity_colors["High"]
         })
 
     # ==============================
-    # RULE 5 — LOW BANK BALANCE
+    # RULE 5 — GST GAPS
     # ==============================
 
-    if float(row["min_eod_balance"]) < 10000:
+    if app["missing_gst_quarters"] >= 4:
 
-        severity = "Medium"
+        flags.append({
+
+            "rule": "GST Filing Gaps",
+
+            "evidence":
+            f"{app['missing_gst_quarters']} "
+            f"missing quarters",
+
+            "severity": "High",
+
+            "color": severity_colors["High"]
+        })
+
+    # ==============================
+    # RULE 6 — INCOME MISMATCH
+    # ==============================
+
+    if app["income_mismatch_pct"] > 25:
+
+        flags.append({
+
+            "rule": "Income Mismatch",
+
+            "evidence":
+            f"{app['income_mismatch_pct']}% "
+            f"mismatch",
+
+            "severity": "High",
+
+            "color": severity_colors["High"]
+        })
+
+    # ==============================
+    # RULE 7 — NIGHT TRANSACTIONS
+    # ==============================
+
+    if app["night_txn_flag"] == 1:
+
+        flags.append({
+
+            "rule": "Night Transactions",
+
+            "evidence":
+            "Suspicious night transactions",
+
+            "severity": "Medium",
+
+            "color": severity_colors["Medium"]
+        })
+
+    # ==============================
+    # RULE 8 — DEFAULT HISTORY
+    # ==============================
+
+    if app["past_defaults"] >= 1:
+
+        flags.append({
+
+            "rule": "Past Defaults",
+
+            "evidence":
+            f"{app['past_defaults']} "
+            f"past defaults",
+
+            "severity": "High",
+
+            "color": severity_colors["High"]
+        })
+
+    # ==============================
+    # RULE 9 — LOW BANK BALANCE
+    # ==============================
+
+    if app["avg_bank_balance"] < 10000:
 
         flags.append({
 
             "rule": "Low Bank Balance",
 
             "evidence":
-            f"Minimum balance is {row['min_eod_balance']}",
+            f"Average balance "
+            f"{app['avg_bank_balance']}",
 
-            "severity": severity,
+            "severity": "Low",
 
-            "color": get_color(severity)
+            "color": severity_colors["Low"]
         })
 
     # ==============================
-    # RULE 6 — HIGH CREDIT UTILIZATION
+    # RULE 10 — SHORT EMPLOYMENT
     # ==============================
 
-    if float(row["credit_utilization_pct"]) > 80:
-
-        severity = "Medium"
+    if app["employment_years"] < 2:
 
         flags.append({
 
-            "rule": "High Credit Utilization",
+            "rule": "Short Employment History",
 
             "evidence":
-            f"{row['credit_utilization_pct']}% utilized",
+            f"{app['employment_years']} "
+            f"years employment",
 
-            "severity": severity,
+            "severity": "Low",
 
-            "color": get_color(severity)
-        })
-
-    # ==============================
-    # RULE 7 — PREVIOUS DEFAULT
-    # ==============================
-
-    if int(row["has_previous_default"]) == 1:
-
-        severity = "High"
-
-        flags.append({
-
-            "rule": "Previous Loan Default",
-
-            "evidence":
-            "Applicant has previous default history",
-
-            "severity": severity,
-
-            "color": get_color(severity)
-        })
-
-    # ==============================
-    # RULE 8 — NIGHT APPLICATION
-    # ==============================
-
-    if int(row["is_night_application"]) == 1:
-
-        severity = "Medium"
-
-        flags.append({
-
-            "rule": "Night Application",
-
-            "evidence":
-            "Application submitted during night hours",
-
-            "severity": severity,
-
-            "color": get_color(severity)
-        })
-
-    # ==============================
-    # RULE 9 — CHEQUE BOUNCES
-    # ==============================
-
-    if float(row["cheque_bounces"]) >= 1:
-
-        severity = "Medium"
-
-        flags.append({
-
-            "rule": "Cheque Bounces",
-
-            "evidence":
-            f"{row['cheque_bounces']} cheque bounces found",
-
-            "severity": severity,
-
-            "color": get_color(severity)
-        })
-
-    # ==============================
-    # RULE 10 — LOW CREDIT AGE
-    # ==============================
-
-    if float(row["credit_age_months"]) < 12:
-
-        severity = "Medium"
-
-        flags.append({
-
-            "rule": "Low Credit Age",
-
-            "evidence":
-            f"Credit age is {row['credit_age_months']} months",
-
-            "severity": severity,
-
-            "color": get_color(severity)
+            "color": severity_colors["Low"]
         })
 
     # ==============================
     # HIGHEST SEVERITY
     # ==============================
 
-    highest_severity = "Low"
+    highest = "Low"
 
-    for flag in flags:
+    if any(
+        f["severity"] == "High"
+        for f in flags
+    ):
 
-        if flag["severity"] == "High":
+        highest = "High"
 
-            highest_severity = "High"
-            break
+    elif any(
+        f["severity"] == "Medium"
+        for f in flags
+    ):
 
-        elif flag["severity"] == "Medium":
-
-            highest_severity = "Medium"
+        highest = "Medium"
 
     # ==============================
     # FINAL RESPONSE
@@ -355,11 +326,11 @@ def compute_red_flags(application_id):
 
     return {
 
-        "application_id": str(application_id),
+        "application_id": application_id,
 
         "flag_count": len(flags),
 
-        "highest_severity": highest_severity,
+        "highest_severity": highest,
 
         "flags": flags
     }
@@ -369,7 +340,9 @@ def compute_red_flags(application_id):
 # ==============================
 
 @app.post("/api/redflags")
-def redflags(req: RedFlagRequest):
+def get_redflags(
+    req: RedFlagRequest
+):
 
     return compute_red_flags(
         req.application_id
@@ -380,39 +353,20 @@ def redflags(req: RedFlagRequest):
 # ==============================
 
 @app.post("/api/redflags-batch")
-def batch_redflags(req: BatchRequest):
+def batch_redflags(
+    req: BatchRequest
+):
 
     results = []
 
     for app_id in req.application_ids:
 
-        results.append(
-            compute_red_flags(app_id)
+        flags = compute_red_flags(
+            app_id
         )
+
+        results.append(flags)
 
     return {
         "results": results
-    }
-
-# ==============================
-# ROOT ENDPOINT
-# ==============================
-
-@app.get("/")
-def root():
-
-    return {
-        "message":
-        "Red Flags API Running Successfully"
-    }
-
-# ==============================
-# DEBUG ENDPOINT
-# ==============================
-
-@app.get("/debug-columns")
-def debug_columns():
-
-    return {
-        "columns": list(features.columns)
     }
