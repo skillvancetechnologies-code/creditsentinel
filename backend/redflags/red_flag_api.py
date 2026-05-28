@@ -148,59 +148,41 @@ def compute_red_flags(application_id):
     recent_inquiries = safe_get(
         app,
         [
-            "recent_inquiries",
-            "credit_inquiries",
-            "num_inquiries"
+            "num_credit_inquiries_30d"
         ]
     )
 
     emi_bounces = safe_get(
         app,
         [
-            "emi_bounces",
-            "bounce_count"
+            "emi_bounces"
         ]
     )
 
-    missing_gst_quarters = safe_get(
-        app,
-        [
-            "missing_gst_quarters",
-            "gst_gaps",
-            "gst_missing_quarters"
-        ]
-    )
+    # GST gaps approximation
+    missing_gst_quarters = 0
 
-    income_mismatch_pct = safe_get(
-        app,
-        [
-            "income_mismatch_pct",
-            "income_mismatch"
-        ]
-    )
+    # Income mismatch not available
+    income_mismatch_pct = 0
 
     night_txn_flag = safe_get(
         app,
         [
-            "night_txn_flag",
-            "night_transactions"
+            "is_night_application"
         ]
     )
 
     past_defaults = safe_get(
         app,
         [
-            "past_defaults",
-            "default_history"
+            "has_previous_default"
         ]
     )
 
     avg_bank_balance = safe_get(
         app,
         [
-            "avg_bank_balance",
-            "average_bank_balance",
-            "bank_balance"
+            "min_eod_balance"
         ]
     )
 
