@@ -64,6 +64,14 @@ features = features.merge(
 )
 
 # ==============================
+# DEBUG COLUMN NAMES
+# ==============================
+
+print("ALL AVAILABLE COLUMNS:")
+
+print(list(features.columns))
+
+# ==============================
 # REQUEST MODELS
 # ==============================
 
@@ -89,6 +97,18 @@ severity_colors = {
 }
 
 # ==============================
+# SAFE COLUMN GETTER
+# ==============================
+
+def safe_get(app, column, default=0):
+
+    if column in app.index:
+
+        return app[column]
+
+    return default
+
+# ==============================
 # RED FLAG ENGINE
 # ==============================
 
@@ -109,11 +129,61 @@ def compute_red_flags(application_id):
 
     flags = []
 
+    cibil_score = safe_get(
+        app,
+        "cibil_score"
+    )
+
+    foir = safe_get(
+        app,
+        "foir"
+    )
+
+    recent_inquiries = safe_get(
+        app,
+        "recent_inquiries"
+    )
+
+    emi_bounces = safe_get(
+        app,
+        "emi_bounces"
+    )
+
+    missing_gst_quarters = safe_get(
+        app,
+        "missing_gst_quarters"
+    )
+
+    income_mismatch_pct = safe_get(
+        app,
+        "income_mismatch_pct"
+    )
+
+    night_txn_flag = safe_get(
+        app,
+        "night_txn_flag"
+    )
+
+    past_defaults = safe_get(
+        app,
+        "past_defaults"
+    )
+
+    avg_bank_balance = safe_get(
+        app,
+        "avg_bank_balance"
+    )
+
+    employment_years = safe_get(
+        app,
+        "employment_years"
+    )
+
     # ==============================
     # RULE 1 — LOW CIBIL
     # ==============================
 
-    if app["cibil_score"] < 600:
+    if cibil_score < 600:
 
         flags.append({
 
@@ -121,7 +191,7 @@ def compute_red_flags(application_id):
 
             "evidence":
             f"CIBIL score is "
-            f"{app['cibil_score']}",
+            f"{cibil_score}",
 
             "severity": "High",
 
@@ -132,7 +202,7 @@ def compute_red_flags(application_id):
     # RULE 2 — HIGH FOIR
     # ==============================
 
-    if app["foir"] > 60:
+    if foir > 60:
 
         flags.append({
 
@@ -140,7 +210,7 @@ def compute_red_flags(application_id):
 
             "evidence":
             f"FOIR is "
-            f"{app['foir']}%",
+            f"{foir}%",
 
             "severity": "High",
 
@@ -151,14 +221,14 @@ def compute_red_flags(application_id):
     # RULE 3 — HIGH INQUIRIES
     # ==============================
 
-    if app["recent_inquiries"] >= 3:
+    if recent_inquiries >= 3:
 
         flags.append({
 
             "rule": "High Inquiries",
 
             "evidence":
-            f"{app['recent_inquiries']} "
+            f"{recent_inquiries} "
             f"inquiries in 30 days",
 
             "severity": "Medium",
@@ -170,14 +240,14 @@ def compute_red_flags(application_id):
     # RULE 4 — EMI BOUNCES
     # ==============================
 
-    if app["emi_bounces"] >= 1:
+    if emi_bounces >= 1:
 
         flags.append({
 
             "rule": "EMI Bounces",
 
             "evidence":
-            f"{app['emi_bounces']} "
+            f"{emi_bounces} "
             f"bounces",
 
             "severity": "High",
@@ -189,14 +259,14 @@ def compute_red_flags(application_id):
     # RULE 5 — GST GAPS
     # ==============================
 
-    if app["missing_gst_quarters"] >= 4:
+    if missing_gst_quarters >= 4:
 
         flags.append({
 
             "rule": "GST Filing Gaps",
 
             "evidence":
-            f"{app['missing_gst_quarters']} "
+            f"{missing_gst_quarters} "
             f"missing quarters",
 
             "severity": "High",
@@ -208,14 +278,14 @@ def compute_red_flags(application_id):
     # RULE 6 — INCOME MISMATCH
     # ==============================
 
-    if app["income_mismatch_pct"] > 25:
+    if income_mismatch_pct > 25:
 
         flags.append({
 
             "rule": "Income Mismatch",
 
             "evidence":
-            f"{app['income_mismatch_pct']}% "
+            f"{income_mismatch_pct}% "
             f"mismatch",
 
             "severity": "High",
@@ -227,7 +297,7 @@ def compute_red_flags(application_id):
     # RULE 7 — NIGHT TRANSACTIONS
     # ==============================
 
-    if app["night_txn_flag"] == 1:
+    if night_txn_flag == 1:
 
         flags.append({
 
@@ -245,14 +315,14 @@ def compute_red_flags(application_id):
     # RULE 8 — DEFAULT HISTORY
     # ==============================
 
-    if app["past_defaults"] >= 1:
+    if past_defaults >= 1:
 
         flags.append({
 
             "rule": "Past Defaults",
 
             "evidence":
-            f"{app['past_defaults']} "
+            f"{past_defaults} "
             f"past defaults",
 
             "severity": "High",
@@ -264,7 +334,7 @@ def compute_red_flags(application_id):
     # RULE 9 — LOW BANK BALANCE
     # ==============================
 
-    if app["avg_bank_balance"] < 10000:
+    if avg_bank_balance < 10000:
 
         flags.append({
 
@@ -272,7 +342,7 @@ def compute_red_flags(application_id):
 
             "evidence":
             f"Average balance "
-            f"{app['avg_bank_balance']}",
+            f"{avg_bank_balance}",
 
             "severity": "Low",
 
@@ -283,14 +353,14 @@ def compute_red_flags(application_id):
     # RULE 10 — SHORT EMPLOYMENT
     # ==============================
 
-    if app["employment_years"] < 2:
+    if employment_years < 2:
 
         flags.append({
 
             "rule": "Short Employment History",
 
             "evidence":
-            f"{app['employment_years']} "
+            f"{employment_years} "
             f"years employment",
 
             "severity": "Low",
