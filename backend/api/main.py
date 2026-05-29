@@ -36,7 +36,7 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-model = joblib.load(os.path.join(BASE_DIR, Config.MODEL_PATH))  # ✅ Using Config
+model=joblib.load(os.path.join(BASE_DIR,"lightgbm_0.8106.pkl"))  # ✅ Using Config
 print("✅ Model Loaded")
 
 applications_df = pd.read_csv(os.path.join(BASE_DIR, "loan_applications.csv"))
@@ -287,5 +287,4 @@ def portfolio_summary():
     except Exception as e:
         print(traceback.format_exc())
         return {"error": str(e)}
-
 
