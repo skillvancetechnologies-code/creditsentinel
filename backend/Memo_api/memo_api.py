@@ -68,7 +68,7 @@ class MemoRequest(BaseModel):
 # Loaded securely from .env — never hardcode API keys in source code
 # ==============================
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
     raise ValueError(
