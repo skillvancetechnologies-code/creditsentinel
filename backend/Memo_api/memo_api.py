@@ -68,7 +68,7 @@ class MemoRequest(BaseModel):
 # Loaded securely from .env — never hardcode API keys in source code
 # ==============================
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
     raise ValueError(
@@ -77,7 +77,7 @@ if not GROQ_API_KEY:
         "or set it as an environment variable before starting the server."
     )
 
-client = Groq(api_key="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")
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # ==============================
 # FAST MEMO GENERATION
