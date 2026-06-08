@@ -1,0 +1,16 @@
+ALERT: [Severity] — [Component] — [Timestamp]
+
+Component:
+Severity:
+Timestamp:
+
+Metric:
+Threshold:
+Actual:
+
+Action Required:
+Assigned To:
+Escalation Path:
+
+Status:
+OPEN / IN PROGRESS / RESOLVED
