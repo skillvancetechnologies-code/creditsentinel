@@ -12,6 +12,9 @@ import joblib
 import traceback
 import os
 import math
+import json
+import time
+from datetime import datetime
 
 from typing import List
 
@@ -143,18 +146,55 @@ def health():
 # =========================================================
 @app.post("/api/score")
 def score_application(req: ScoreRequest):
+
+    start_time = time.time()
+
     try:
         result = generate_risk_score(req.application_id)
+
+        latency_ms = (time.time() - start_time) * 1000
+
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "application_id": req.application_id,
+            "latency_ms": latency_ms,
+            "risk_score": result["risk_score"],
+            "status": "success",
+            "error": None
+        }
+
+        with open("model_predictions.log", "a") as f:
+            f.write(json.dumps(log_entry) + "\n")
+
         return {
             "application_id": req.application_id,
-            "model_loaded":   True,
-            "risk_score":     result["risk_score"],
-            "risk_tier":      result["risk_tier"],
-            "features_used":  len(MODEL_FEATURES)
+            "model_loaded": True,
+            "risk_score": result["risk_score"],
+            "risk_tier": result["risk_tier"],
+            "features_used": len(MODEL_FEATURES),
+            "latency_ms": latency_ms
         }
-    except Exception as e:
-        return {"application_id": req.application_id, "model_loaded": False, "error": str(e)}
 
+    except Exception as e:
+
+        latency_ms = (time.time() - start_time) * 1000
+
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "application_id": req.application_id,
+            "latency_ms": latency_ms,
+            "status": "error",
+            "error": str(e)
+        }
+
+        with open("model_predictions.log", "a") as f:
+            f.write(json.dumps(log_entry) + "\n")
+
+        return {
+            "application_id": req.application_id,
+            "model_loaded": False,
+            "error": str(e)
+        }
 # =========================================================
 # SCORE BATCH
 # =========================================================
