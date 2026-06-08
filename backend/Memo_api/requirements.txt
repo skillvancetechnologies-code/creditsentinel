@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-pandas
-groq
-python-multipart
-python-dotenv
-requests
