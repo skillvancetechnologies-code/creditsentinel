@@ -1,0 +1,21 @@
+CreditSentinel Baseline Load Test Results
+
+Date: 08-Jun-2026
+
+Concurrent Users: 10
+Requests: 151
+Failures: 0
+Failure Rate: 0%
+
+Median Response Time: 560 ms
+Average Response Time: 3937.72 ms
+Minimum Response Time: 392 ms
+Maximum Response Time: 52724 ms
+
+Requests Per Second: 1.67
+
+Observations:
+- Test completed successfully
+- No failures detected
+- Baseline established for Week 5
+- Ready for 100 concurrent user test on Wednesday
