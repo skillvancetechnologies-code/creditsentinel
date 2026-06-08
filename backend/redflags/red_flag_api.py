@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
+import json
+import time
+from datetime import datetime
 
 # ==============================
 # FASTAPI APP
@@ -435,21 +438,74 @@ def get_redflags(
 # BATCH ENDPOINT
 # ==============================
 
-@app.post("/api/redflags-batch")
-def batch_redflags(
-    req: BatchRequest
-):
+@app.post("/api/redflags")
+def get_redflags(req: RedFlagRequest):
 
-    results = []
+    start_time = time.time()
 
-    for app_id in req.application_ids:
+    try:
 
-        flags = compute_red_flags(
-            app_id
+        result = compute_red_flags(
+            req.application_id
         )
 
-        results.append(flags)
+        latency_ms = (
+            time.time() - start_time
+        ) * 1000
 
-    return {
-        "results": results
-    }
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "application_id": req.application_id,
+            "latency_ms": round(latency_ms, 2),
+            "flag_count": result["flag_count"],
+            "rules_triggered": [
+                f["rule"]
+                for f in result["flags"]
+            ],
+            "status": "success"
+        }
+
+        with open(
+            "redflag_detection.log",
+            "a"
+        ) as f:
+
+            f.write(
+                json.dumps(log_entry)
+                + "\n"
+            )
+
+        result["latency_ms"] = round(
+            latency_ms,
+            2
+        )
+
+        return result
+
+    except Exception as e:
+
+        latency_ms = (
+            time.time() - start_time
+        ) * 1000
+
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "application_id": req.application_id,
+            "latency_ms": round(latency_ms, 2),
+            "status": "error",
+            "error": str(e)
+        }
+
+        with open(
+            "redflag_detection.log",
+            "a"
+        ) as f:
+
+            f.write(
+                json.dumps(log_entry)
+                + "\n"
+            )
+
+        return {
+            "error": str(e)
+        }
