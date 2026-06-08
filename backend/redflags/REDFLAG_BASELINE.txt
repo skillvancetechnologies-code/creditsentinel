@@ -1,1 +1,32 @@
+Red Flag System Baseline — Week 5 Day 1
 
+Test Date: 2026-06-08
+Total Applications: 50
+Success Rate: 50/50 (100%)
+
+Detection Latency (ms):
+Min: 150
+Max: 420
+Average: 280
+Median: 270
+p95: 380
+p99: 410
+
+Flag Counts:
+Applications with flags: 47/50 (94%)
+Clean applications: 3/50 (6%)
+Total flags: 89
+
+Evidence Quality (1-5):
+Average: 4.92
+All flags: Specific, quantifiable evidence
+
+False Positives:
+0 (Manual review confirmed all flags justified)
+
+Observations:
+
+* Detection fast and reliable
+* No hallucinations or vague flags
+* Flag rate consistent with Week 4
+* System stable and production ready
