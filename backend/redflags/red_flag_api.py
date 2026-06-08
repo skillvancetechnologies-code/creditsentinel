@@ -426,19 +426,6 @@ def compute_red_flags(application_id):
 # ==============================
 
 @app.post("/api/redflags")
-def get_redflags(
-    req: RedFlagRequest
-):
-
-    return compute_red_flags(
-        req.application_id
-    )
-
-# ==============================
-# BATCH ENDPOINT
-# ==============================
-
-@app.post("/api/redflags")
 def get_redflags(req: RedFlagRequest):
 
     start_time = time.time()
@@ -509,3 +496,22 @@ def get_redflags(req: RedFlagRequest):
         return {
             "error": str(e)
         }
+
+# ==============================
+# BATCH ENDPOINT
+# ==============================
+
+@app.post("/api/redflags-batch")
+def batch_redflags(req: BatchRequest):
+
+    results = []
+
+    for app_id in req.application_ids:
+
+        flags = compute_red_flags(app_id)
+
+        results.append(flags)
+
+    return {
+        "results": results
+    }
