@@ -1,1 +1,5 @@
-
+latency_ms
+flag_count
+rules_triggered
+status
+timestamp
