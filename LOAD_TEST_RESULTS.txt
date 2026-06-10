@@ -1,0 +1,47 @@
+LOAD TEST RESULTS - DAY 3
+
+Date: 10-Jun-2026
+
+Concurrent Users: 100
+Duration: 5 Minutes
+
+application_detail
+Requests: 53
+Failures: 0
+p95: 43000 ms
+p99: 45000 ms
+
+applications_list
+Requests: 46
+Failures: 0
+p95: 60000 ms
+p99: 62000 ms
+
+decision_submit
+Requests: 54
+Failures: 0
+p95: 43000 ms
+p99: 44000 ms
+
+portfolio_summary
+Requests: 39
+Failures: 0
+p95: 43000 ms
+p99: 44000 ms
+
+risk_score
+Requests: 53
+Failures: 0
+p95: 43000 ms
+p99: 45000 ms
+
+Overall Results
+Total Requests: 245
+Error Rate: 0%
+Throughput: 1.9 RPS
+
+Observations
+- 100-user load test completed successfully.
+- Per-endpoint p95/p99 metrics captured.
+- Portfolio Summary remained stable with 0 failures.
+- No request failures observed.
