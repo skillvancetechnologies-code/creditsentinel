@@ -1,0 +1,38 @@
+Red Flag Endpoint Load Test Report
+
+Test Date: 2026-06-10
+
+Concurrent Users: 100
+
+Load Test Summary
+
+* Error Rate: 0%
+* Request Failures: 0
+* Throughput: ~2.3 RPS
+
+Observed Backend Stability
+
+* All monitored endpoints remained operational.
+* No crashes or service interruptions observed.
+* Portfolio Summary endpoint remained functional after deployment fix.
+
+Accuracy Validation
+
+Applications Tested: 5
+
+Results:
+
+* Same flags before and after load testing.
+* Same evidence quality maintained.
+* No false positives observed.
+* No hallucinated flags observed.
+
+Logging Validation
+
+* Logging remained active during testing.
+* No malformed log entries observed.
+* No logging failures detected.
+
+Conclusion
+
+Red Flag Detection functionality remained stable during backend load testing. No accuracy degradation, false positives, or logging failures were observed. Dedicated Red Flag endpoint performance metrics should be included in future load tests for endpoint-specific latency analysis.
