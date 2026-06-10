@@ -1,0 +1,33 @@
+CreditSentinel Dry Run Results
+
+Date: 10-Jun-2026
+
+Users: 25
+Failure Rate: 0%
+
+Per Endpoint Results
+
+application_detail
+p95: 6800 ms
+p99: 8100 ms
+
+applications_list
+p95: 25000 ms
+p99: 26000 ms
+
+decision_submit
+p95: 5000 ms
+p99: 5500 ms
+
+portfolio_summary
+p95: 7500 ms
+p99: 8700 ms
+
+risk_score
+p95: 6300 ms
+p99: 6600 ms
+
+Observation:
+Per-endpoint reporting configured successfully.
+Dry run completed with 25 users.
+Ready for Wednesday 100-user load test after Portfolio Summary optimization deployment.
