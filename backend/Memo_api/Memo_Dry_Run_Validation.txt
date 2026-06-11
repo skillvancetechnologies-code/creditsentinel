@@ -18,10 +18,10 @@ APP-000005
 
 Baseline Validation Results (Before Load)
 -----------------------------------------
-Average Latency: 735.83 ms
-Maximum Latency: 872.84 ms
-Minimum Latency: 614.39 ms
-Average Generation Time: 0.411 seconds
+Average Latency: 801.23 ms
+Maximum Latency: 1083.92 ms
+Minimum Latency: 704.56 ms
+Average Generation Time: 0.516 seconds
 
 Quality Validation
 ------------------
