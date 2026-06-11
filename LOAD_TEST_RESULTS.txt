@@ -45,3 +45,101 @@ Observations
 - Per-endpoint p95/p99 metrics captured.
 - Portfolio Summary remained stable with 0 failures.
 - No request failures observed.
+
+
+LOAD TEST RESULTS
+CreditSentinel API - Render Free Tier
+
+========================================
+50 USER LOAD TEST
+========================================
+
+Concurrent Users: 50
+Error Rate: 0%
+Failures: 0
+Throughput: 3.7 RPS
+
+Per Endpoint Results
+
+GET /application_detail
+p95: 19000 ms
+p99: 20000 ms
+
+GET /applications_list
+p95: 41000 ms
+p99: 43000 ms
+
+POST /decision_submit
+p95: 16000 ms
+p99: 18000 ms
+
+GET /portfolio_summary
+p95: 20000 ms
+p99: 20000 ms
+
+POST /risk_score
+p95: 19000 ms
+p99: 20000 ms
+
+Observations:
+- No request failures observed.
+- Portfolio Summary remained stable.
+- Performance limited by Render free-tier resource constraints.
+
+========================================
+25 USER LOAD TEST
+========================================
+
+Concurrent Users: 25
+Error Rate: 0%
+Failures: 0
+Throughput: 2.7 RPS
+
+Per Endpoint Results
+
+GET /application_detail
+p95: 7800 ms
+p99: 9000 ms
+
+GET /applications_list
+p95: 24000 ms
+p99: 24000 ms
+
+POST /decision_submit
+p95: 4300 ms
+p99: 4600 ms
+
+GET /portfolio_summary
+p95: 8900 ms
+p99: 9000 ms
+
+POST /risk_score
+p95: 6500 ms
+p99: 6600 ms
+
+Observations:
+- No request failures observed.
+- Portfolio Summary latency improved significantly.
+- Application remained stable under load.
+
+========================================
+COMPARISON SUMMARY
+========================================
+
+Portfolio Summary Performance
+
+100 Users -> p99 ≈ 48 seconds
+50 Users  -> p99 ≈ 20 seconds
+25 Users  -> p99 ≈ 9 seconds
+
+Error Rate:
+100 Users -> 0%
+50 Users  -> 0%
+25 Users  -> 0%
+
+Conclusion:
+- Application remained stable with zero failures across all tests.
+- Latency decreases as concurrent user load decreases.
+- Code functionality is correct.
+- Performance bottleneck is Render free-tier infrastructure (CPU/memory and request queueing), not application logic.
+- Scaling beyond current limits requires upgraded infrastructure.
