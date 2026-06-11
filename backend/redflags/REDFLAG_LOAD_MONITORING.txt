@@ -1,0 +1,28 @@
+Red Flag Monitoring Report — Week 5 Day 3
+
+Load Test Comparison
+
+25 Users:
+- Requests: 184
+- Failures: 0%
+- Average Latency: 6550 ms
+- p95: 21000 ms
+- p99: 24000 ms
+
+50 Users:
+- Requests: 382
+- Failures: 0%
+- Average Latency: 15345 ms
+- p95: 31000 ms
+- p99: 41000 ms
+
+Observations:
+- No endpoint failures observed.
+- Accuracy and evidence quality remained unchanged.
+- No false positives detected.
+- Latency increased under higher concurrency.
+- Bottleneck attributed to Render free-tier resource constraints.
+
+Conclusion:
+Red Flag Detection remains stable and reliable.
+System is suitable for free-tier deployment and ready for continued monitoring.
