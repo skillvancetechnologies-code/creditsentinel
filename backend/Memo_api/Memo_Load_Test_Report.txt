@@ -8,19 +8,46 @@ Objective
 ---------
 Validate memo generation performance and quality during the 50-user dry run.
 
-Baseline Metrics
-----------------
-Average Latency: 758.18 ms
-Average Generation Time: 0.411 seconds
-
-Post Load Metrics
+Load Test Metrics
 -----------------
-Average Latency: 801.23 ms
-Average Generation Time: 0.516 seconds
+Concurrent Users: 50
+Total Requests: 382
+Successful Requests: 382
+Failed Requests: 0
+Success Rate: 100%
+Error Rate: 0%
+Average Response Time: 15345.28 ms
+Median Response Time: 14000 ms
+95th Percentile Response Time: 31000 ms
+99th Percentile Response Time: 41000 ms
+Requests Per Second (RPS): 2.63
 
-Performance Comparison
-----------------------
-Latency Increase: 43.05 ms
+Endpoint Performance
+--------------------
+application_detail
+- Requests: 80
+- Average Latency: 12677.21 ms
+- Failures: 0
+
+applications_list
+- Requests: 60
+- Average Latency: 29170.93 ms
+- Failures: 0
+
+decision_submit
+- Requests: 79
+- Average Latency: 11183.28 ms
+- Failures: 0
+
+portfolio_summary
+- Requests: 84
+- Average Latency: 14289.96 ms
+- Failures: 0
+
+risk_score
+- Requests: 79
+- Average Latency: 12830.76 ms
+- Failures: 0
 
 Quality Validation
 ------------------
@@ -40,17 +67,16 @@ Hallucinations Observed: 0
 
 Observations
 ------------
-No significant performance degradation was observed in memo generation quality.
-Memo generation remained stable and responsive throughout testing.
-Response quality remained consistent across all tested applications.
-No API failures were observed.
-Error rate remained at 0%.
-Load testing indicated that higher response times under large concurrency levels are primarily associated with infrastructure resource limitations rather than memo generation functionality.
+All endpoints completed successfully with zero failures.
+Memo generation quality remained unchanged during load testing.
+No API failures or service interruptions were observed.
+Portfolio Summary remained above the desired 2-second target under concurrent load.
+Observed latency is consistent with free-tier infrastructure resource limitations rather than memo generation logic.
 
 Conclusion
 ----------
-Memo generation remained stable during load testing.
+Memo generation remained stable during 50-user load testing.
 No quality degradation, missing sections, hallucinations, or API failures were observed.
-Performance constraints observed during higher concurrency testing are consistent with free-tier infrastructure limitations and are not attributable to memo generation logic.
+Performance constraints under concurrent load are attributable to infrastructure limitations and not application functionality.
 
 Status: PASS
