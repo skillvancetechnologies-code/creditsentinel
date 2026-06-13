@@ -1,0 +1,18 @@
+LOAD TEST RESULTS - API_SCORE
+
+Users: 100
+Requests: 1064
+Failures: 0
+Error Rate: 0%
+
+Median Latency: 430 ms
+Average Latency: 618.15 ms
+p95 Latency: 1500 ms
+p99 Latency: 1800 ms
+
+Min Latency: 260 ms
+Max Latency: 1956 ms
+RPS: 20.46
+
+Observation:
+The /api/score endpoint remained available under 100 concurrent users with 0% failures. Latency increased compared to lower load levels, indicating expected performance degradation under higher concurrency.
