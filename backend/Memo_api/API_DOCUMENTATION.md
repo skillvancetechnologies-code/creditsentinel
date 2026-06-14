@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Base URL (local):** `http://127.0.0.1:8000`
-**Base URL (production):** `https://<YOUR-DEPLOYMENT-URL>`
+**Base URL (production):** `https://creditsentinel-kkg7.onrender.com`
 **Protocol:** HTTP / HTTPS
 **Format:** JSON
 
@@ -106,17 +106,18 @@ The core endpoint. Accepts a loan `application_id`, merges applicant profile dat
 {
   "application_id": "APP-000001",
   "applicant_name": "Rahul Yadav",
-  "risk_level": "LOW",
-  "risk_tier": "LOW",
-  "risk_score": 0.6412,
-  "decision": "APPROVE",
+  "risk_level": "MEDIUM",
+  "risk_tier": "MEDIUM",
+  "risk_score": 0.5062,
+  "decision": "APPROVE WITH CONDITIONS",
   "profile": "Applicant Rahul Yadav applied for a loan of ₹390000. Monthly income is ₹55107. Employment history shows 1.0 years of work experience.",
-  "risk_assessment": "Overall application risk is classified as LOW. The evaluated risk score is 0.6412.",
+  "risk_assessment": "Overall application risk is classified as MEDIUM. The evaluated risk score is 0.5062.",
   "credit_history": "Applicant has a CIBIL score of 706. Credit behavior analysis was included in underwriting evaluation.",
   "repayment_capacity": "FOIR recorded is 26.48. Income and obligation levels were evaluated to determine repayment capacity.",
-  "risk_factors": "1. Strong CIBIL score indicates reliable credit repayment history. 2. Low FOIR suggests comfortable debt servicing capacity. 3. Stable income supports loan eligibility.",
-  "recommendation": "Final underwriting recommendation: APPROVE",
-  "generation_time_seconds": 0.843
+  "risk_factors": "1. The applicant has a relatively short employment history of 1.0 year, which may indicate a higher risk of loan default due to the limited stability and continuity of employment. 2. The applicant's FOIR (Family Obligation to Income Ratio) of 26.48 is relatively high, suggesting that a significant portion of their income is already committed to existing financial obligations, potentially leaving limited room for loan repayment. 3. Although the applicant has a high CIBIL score of 706, which indicates a good credit history, the loan amount of 390,000 is substantial in comparison to their monthly income of 55,107, which may lead to a higher debt servicing burden and increased risk of default.",
+  "recommendation": "Final underwriting recommendation: APPROVE WITH CONDITIONS",
+  "generation_time_seconds": 0.381,
+  "latency_ms": 659.36
 }
 ```
 
@@ -139,6 +140,7 @@ The core endpoint. Accepts a loan `application_id`, merges applicant profile dat
 | `risk_factors` | `string` | Three LLM-generated underwriting reasons (numbered 1–3 in a single string) |
 | `recommendation` | `string` | Final recommendation sentence |
 | `generation_time_seconds` | `float` | Groq LLM call duration in seconds (excludes data lookup time) |
+| `latency_ms` | `float` | Total end-to-end request time in milliseconds, including data lookup, external score API call, and LLM generation |
 
 ---
 
