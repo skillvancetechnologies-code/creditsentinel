@@ -1,0 +1,10 @@
+1. Perfect Credit + New to Credit → No Risk Flags
+2. Multiple Inquiries in 30 Days → Inquiry Flag Triggered
+3. High Income + Small Loan → No Risk Flags
+4. Low Income + High Loan → High Risk Flag Triggered
+5. High FOIR + Good CIBIL → Debt Burden Flag Triggered
+6. Low CIBIL + Stable Income → Credit Risk Flag Triggered
+7. Previous Default + Good Income → Default History Flag Triggered
+8. Missing GST Records → Compliance Flag Triggered
+9. Night Application + High FOIR → Multiple Flags Triggered
+10. Clean Profile → No Flags
