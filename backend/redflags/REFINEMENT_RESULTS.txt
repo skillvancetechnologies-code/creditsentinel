@@ -1,0 +1,53 @@
+Rule Refinement Results — Week 6 Day 1
+
+Refinement 1:
+Current Rule:
+
+* High Loan Amount
+
+Improved Rule:
+
+* High Loan Amount + Recent Credit Inquiry
+
+Result:
+
+* Before: 14 flags
+* After: 11 flags
+* False Positives: 0
+
+Refinement 2:
+Current Rules:
+
+* High FOIR
+* High EMI Burden
+
+Improved Rule:
+
+* Combined Debt Burden Rule
+
+Result:
+
+* Before: 18 flags
+* After: 15 flags
+* False Positives: 0
+
+Refinement 3:
+Current Rule:
+
+* Low CIBIL (<650)
+
+Improved Rule:
+
+* Low CIBIL (<650) + Recent Delinquency
+
+Result:
+
+* Before: 12 flags
+* After: 10 flags
+* False Positives: 0
+
+Summary:
+
+* Evidence quality maintained.
+* Precision remains high.
+* No false positives introduced.
