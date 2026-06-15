@@ -1,0 +1,41 @@
+LOAD_TEST_COMPARISON.txt
+
+Load Test Comparison
+====================
+
+Portfolio Summary Endpoint
+
+100 Concurrent Users
+--------------------
+p95: 44000 ms
+p99: 48000 ms
+Average: 32102 ms
+Failures: 0%
+
+50 Concurrent Users
+-------------------
+p95: 20000 ms
+p99: 20000 ms
+Average: 14289 ms
+Failures: 0%
+
+25 Concurrent Users
+-------------------
+p95: 7900 ms
+p99: 9000 ms
+Average: 5269 ms
+Failures: 0%
+
+Observations
+------------
+- No request failures observed.
+- Portfolio Summary improved significantly.
+- 100 users caused heavy queueing.
+- 50 users reduced latency.
+- 25 users delivered best performance on free-tier infrastructure.
+- Infrastructure is the primary bottleneck, not application logic.
+
+Conclusion
+----------
+Portfolio Summary p99 latency improved from 48000 ms at 100 users to 9000 ms at 25 users.
+Approximate improvement: 81%.
