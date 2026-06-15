@@ -1,0 +1,33 @@
+INCIDENT SIMULATION 1
+=====================
+
+Scenario:
+Portfolio Summary endpoint latency increased from normal levels to >2000ms.
+
+Expected Alert:
+- Latency alert triggered
+- Severity: WARNING
+- Threshold exceeded: p99 >1000ms
+
+Timeline:
+10:00 AM - Latency spike begins
+10:05 AM - Monitoring detects elevated latency
+10:06 AM - Alert generated
+10:08 AM - Issue logged in #blockers
+10:12 AM - Investigation started
+
+Runbook Execution:
+1. Checked API latency metrics
+2. Reviewed Render instance utilization
+3. Checked database response times
+4. Confirmed no application errors
+5. Identified infrastructure bottleneck
+
+Result:
+Alert process worked correctly.
+Escalation completed successfully.
+
+Resolution:
+Recommend instance upgrade and caching improvements.
+
+Status: PASS

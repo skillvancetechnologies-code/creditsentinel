@@ -1,0 +1,28 @@
+INCIDENT SIMULATION 2
+=====================
+
+Scenario:
+Red Flag rules configured too aggressively.
+False positive rate increased above 3%.
+
+Expected Alert:
+- Quality alert triggered
+- Escalation initiated
+
+Timeline:
+11:00 AM - False positive increase observed
+11:04 AM - Monitoring threshold exceeded
+11:05 AM - Alert generated
+11:08 AM - Issue posted in #blockers
+
+Runbook Execution:
+1. Reviewed recent flagged applications
+2. Compared results against expected outcomes
+3. Identified over-triggering rule
+4. Restored previous threshold
+5. Re-tested sample applications
+
+Result:
+False positive rate returned to normal.
+
+Status: PASS
