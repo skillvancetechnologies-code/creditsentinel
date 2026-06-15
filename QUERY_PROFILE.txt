@@ -1,0 +1,32 @@
+QUERY PROFILE REPORT
+====================
+
+Date: Week 6 Day 1
+
+Slow Endpoints Identified from Week 5 Load Test
+
+1. applications_list
+   Average Latency: 29s
+   Possible Cause:
+   - Large dataset retrieval
+   - Potential missing indexes
+
+2. portfolio_summary
+   Average Latency: 14s
+   Possible Cause:
+   - Aggregation calculations
+   - Multiple database lookups
+
+3. risk_score
+   Average Latency: 13s
+   Possible Cause:
+   - Feature calculations
+   - Database query overhead
+
+Analysis Planned:
+- Run EXPLAIN ANALYZE on underlying queries
+- Check for missing indexes
+- Identify inefficient joins or table scans
+
+Status:
+Query profiling initiated.
