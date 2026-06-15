@@ -1,0 +1,28 @@
+Applications Analyzed: 50
+
+Most Frequently Triggered Rules:
+
+1. Low Bank Balance
+2. Short Employment History
+3. Previous Defaults
+4. High FOIR
+5. Low CIBIL Score
+
+Rarely Triggered Rules:
+
+1. Night Application
+2. Missing GST Quarters
+3. Income-Bank Mismatch
+4. Multiple Recent Inquiries
+
+Redundancy Review:
+
+* High FOIR and High EMI Burden often appear together.
+* Low Bank Balance and Income-Bank Mismatch show partial overlap.
+* No rules identified as completely redundant.
+
+Observations:
+
+* Core credit-risk rules account for most detections.
+* Rare rules provide useful edge-case coverage.
+* Current rule set maintains high precision and evidence quality.
