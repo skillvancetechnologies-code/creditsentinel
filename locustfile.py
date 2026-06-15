@@ -49,3 +49,4 @@ class CreditSentinelUser(HttpUser):
             "/api/portfolio/summary",
             name="portfolio_summary"
         )
+        
