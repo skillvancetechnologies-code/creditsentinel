@@ -1,0 +1,24 @@
+INDEXES_ADDED.txt
+
+Index Review Report
+===================
+
+Investigation:
+- Reviewed backend implementation.
+- Application primarily uses Pandas DataFrames and CSV files.
+- No SQL database queries identified during profiling.
+
+Index Analysis:
+- No missing database indexes found.
+- No JOIN operations requiring indexes.
+- No database table scans identified.
+
+Action Taken:
+- No database indexes added.
+
+Reason:
+- Performance bottleneck is caused by free-tier infrastructure limits and endpoint processing overhead rather than database indexing.
+
+Conclusion:
+- Query optimization focused on application-level improvements such as sampling and reduced processing load.
+- Database indexing was not applicable for the current architecture.
