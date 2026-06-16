@@ -115,6 +115,24 @@ def safe_get(app, possible_columns, default=0):
             return app[col]
 
     return default
+# ==============================
+# ALERT SYSTEM
+# ==============================
+
+def send_redflag_alert(application_id, flag, evidence, confidence):
+
+    alert = {
+        "application_id": application_id,
+        "flag_triggered": flag,
+        "evidence": evidence,
+        "confidence_level": confidence,
+        "timestamp": datetime.now().isoformat()
+    }
+
+    print("RED FLAG ALERT:", alert)
+
+    with open("redflag_alerts.log", "a") as f:
+        f.write(json.dumps(alert) + "\n")
 
 # ==============================
 # RED FLAG ENGINE
@@ -689,9 +707,35 @@ def get_redflags(req: RedFlagRequest):
     start_time = time.time()
 
     try:
-        result = compute_red_flags(req.application_id)
 
-        latency_ms = (time.time() - start_time) * 1000
+    result = compute_red_flags(
+        req.application_id
+    )
+
+    # ==============================
+    # SEND ALERTS
+    # ==============================
+
+    for flag in result["flags"]:
+
+        confidence = "HIGH"
+
+        if flag["severity"] == "Medium":
+            confidence = "MEDIUM"
+
+        elif flag["severity"] == "Low":
+            confidence = "LOW"
+
+        send_redflag_alert(
+            application_id=req.application_id,
+            flag=flag["rule"],
+            evidence=flag["evidence"],
+            confidence=confidence
+        )
+
+    latency_ms = (
+        time.time() - start_time
+    ) * 1000
 
         high_count = sum(
             1 for f in result.get("flags", [])
