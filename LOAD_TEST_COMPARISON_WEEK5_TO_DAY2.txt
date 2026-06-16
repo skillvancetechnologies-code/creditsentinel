@@ -1,0 +1,15 @@
+Portfolio Summary Comparison
+
+Week 5:
+P99 = 20000 ms
+
+Day 2:
+P99 = 19000 ms
+
+Improvement:
+1000 ms reduction (~5%)
+
+Observation:
+Performance optimization resulted in slightly improved latency.
+System remains stable at 50 concurrent users with 0% failures.
+Infrastructure remains primary bottleneck on Render free tier.

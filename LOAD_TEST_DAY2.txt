@@ -1,0 +1,26 @@
+50 USER LOAD TEST – DAY 2
+
+Users: 50
+Duration: 3 minutes
+
+application_detail
+P95: 23000 ms
+P99: 24000 ms
+
+applications_list
+P95: 29000 ms
+P99: 29000 ms
+
+decision_submit
+P95: 18000 ms
+P99: 18000 ms
+
+portfolio_summary
+P95: 19000 ms
+P99: 19000 ms
+
+risk_score
+P95: 15000 ms
+P99: 15000 ms
+
+Failures: 0%
