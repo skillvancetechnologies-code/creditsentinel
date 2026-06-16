@@ -35,7 +35,7 @@ class CreditSentinelUser(HttpUser):
         app_id = f"APP-{random.randint(1,100):06d}"
 
         self.client.post(
-            f"/api/applications/{app_id}/decision",
+            f"/api/applications/{app_id}/process-decision",
             json={
                 "decision": "APPROVE",
                 "notes": "Load Test"
