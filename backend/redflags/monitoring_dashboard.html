@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreditSentinel Rule Monitoring</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #5f6b7a;
+      --line: #d9e0ea;
+      --accent: #0f766e;
+      --warning: #b45309;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric {
+      min-height: 136px;
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .metric-label {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .metric-note {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      padding: 12px 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    @media (max-width: 820px) {
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      main {
+        width: min(100% - 24px, 1040px);
+        padding: 24px 0;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>CreditSentinel Rule Monitoring</h1>
+      <p class="subtitle">Rule monitoring and alert logging validation dashboard.</p>
+    </header>
+
+    <section class="metrics" aria-label="Rule monitoring metrics">
+      <article class="metric">
+        <p class="metric-label">Rules Triggered Today</p>
+        <p class="metric-value">10</p>
+        <p class="metric-note">Simulated alert entries documented for validation.</p>
+      </article>
+
+      <article class="metric">
+        <p class="metric-label">Most Common Rules</p>
+        <p class="metric-value">Income</p>
+        <p class="metric-note">Representative rule category from red flag monitoring.</p>
+      </article>
+
+      <article class="metric">
+        <p class="metric-label">False Positive Rate</p>
+        <p class="metric-value">0%</p>
+        <p class="metric-note">No false positives recorded during validation.</p>
+      </article>
+
+      <article class="metric">
+        <p class="metric-label">Last Updated Timestamp</p>
+        <p class="metric-value">2026-06-16</p>
+        <p class="metric-note">Monitoring documentation updated for Week 6 Day 2.</p>
+      </article>
+    </section>
+
+    <div class="status" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      Alerting simulated through logging documentation; API logic unchanged.
+    </div>
+  </main>
+</body>
+</html>
