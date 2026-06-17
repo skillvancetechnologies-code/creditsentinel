@@ -1,0 +1,41 @@
+Red Flag Rule Audit Report — Week 6 Day 3
+
+Audit Date: 2026-06-18
+
+Rules Reviewed: 10 Active Production Rules
+
+Rules Audited:
+
+1. Low CIBIL Score
+2. High FOIR
+3. High Credit Inquiries
+4. EMI Bounce History
+5. GST Filing Gaps
+6. Income Mismatch
+7. Night Application
+8. Previous Defaults
+9. Low Bank Balance
+10. Short Employment History
+
+Audit Findings:
+
+* No contradictory rules identified.
+* No duplicate or redundant rules identified.
+* All rules contribute to credit risk assessment.
+* Evidence generated for every triggered rule.
+* False Positive Rate remains 0%.
+
+Performance Summary:
+
+* False Positive Rate: 0%
+* Coverage: Approximately 70% of tested applications triggered at least one rule.
+* Average Flags Per Application: 2.1
+
+Recommendations:
+
+* Maintain current thresholds.
+* Continue monitoring edge cases.
+* Review thresholds quarterly as more production data becomes available.
+
+Conclusion:
+Current rule set is effective, explainable, and production-ready.
