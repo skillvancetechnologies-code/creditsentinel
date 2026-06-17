@@ -1,0 +1,50 @@
+Scenario: Very High Income + High Loan
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.1215
+Reasoning: Income level and loan amount influenced prediction.
+------------------------------------------------------------
+Scenario: Very Low Credit Score + New Credit
+Predicted Risk Tier: Medium Risk
+Confidence Score: 0.3923
+Reasoning: Low CIBIL score and short credit history increased risk.
+------------------------------------------------------------
+Scenario: Many Existing Loans + High EMI
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.1276
+Reasoning: High EMI burden and multiple active loans increased risk.
+------------------------------------------------------------
+Scenario: No Credit History
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.1146
+Reasoning: Lack of credit history reduced confidence in repayment behavior.
+------------------------------------------------------------
+Scenario: Recent Defaults
+Predicted Risk Tier: Medium Risk
+Confidence Score: 0.5110
+Reasoning: Previous defaults strongly increased risk.
+------------------------------------------------------------
+Scenario: High Inquiries + Low Income
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.1635
+Reasoning: Income level and loan amount influenced prediction.
+------------------------------------------------------------
+Scenario: High Credit Utilization
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.1485
+Reasoning: Very high credit utilization increased risk.
+------------------------------------------------------------
+Scenario: Self Employed + GST Missing
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.2788
+Reasoning: Missing GST filings and self-employment risk increased risk.
+------------------------------------------------------------
+Scenario: Night Application + High FOIR
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.2590
+Reasoning: Night application and high FOIR increased risk.
+------------------------------------------------------------
+Scenario: Ideal Borrower
+Predicted Risk Tier: Low Risk
+Confidence Score: 0.1050
+Reasoning: Strong credit profile, stable employment and low obligations reduced risk.
+------------------------------------------------------------

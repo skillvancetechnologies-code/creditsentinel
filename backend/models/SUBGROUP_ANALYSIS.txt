@@ -1,0 +1,26 @@
+MODEL PERFORMANCE ON SUBGROUPS
+============================================================
+
+INCOME LEVEL ANALYSIS
+               count      mean       min       max
+income_group                                      
+Low Income      5000  0.491422  0.101677  0.992348
+Medium Income   5000  0.478429  0.099111  0.987386
+High Income     5000  0.501661  0.105828  0.987062
+
+AGE GROUP ANALYSIS
+                count      mean       min       max
+age_group_risk                                     
+0               13006  0.490056  0.101677  0.992348
+1                1994  0.493426  0.099111  0.985319
+
+EMPLOYMENT TYPE ANALYSIS
+                  count      mean       min       max
+employment_group                                     
+Salaried          15000  0.490504  0.099111  0.992348
+
+FAIRNESS OBSERVATIONS
+- Compared average risk scores across income levels.
+- Compared average risk scores across age groups.
+- Compared average risk scores across employment types.
+- Checked for unusually large differences that may indicate bias.
