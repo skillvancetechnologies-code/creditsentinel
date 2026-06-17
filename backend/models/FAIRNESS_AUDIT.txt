@@ -1,0 +1,23 @@
+FAIRNESS AUDIT REPORT
+
+Model Version: lightgbm_0.8106.pkl
+Audit Date: 2026-06-17
+
+Income Level Analysis
+- Evaluated score distribution across Low, Medium, and High income groups.
+- No significant score concentration observed in any income segment.
+- Performance gap threshold: 10%.
+
+Age Group Analysis
+- Raw age information is not available in the dataset.
+- Only the engineered feature 'age_group_risk' is present.
+- Direct age-based fairness evaluation could not be performed.
+
+Employment Type Analysis
+- Evaluated score distribution across Salaried and Self-Employed applicants.
+- No significant score concentration observed for either employment category.
+- Performance gap threshold: 10%.
+
+Conclusion
+- No evidence of unfair score distribution across available income and employment groups.
+- Age-based fairness assessment requires access to applicant age data.
