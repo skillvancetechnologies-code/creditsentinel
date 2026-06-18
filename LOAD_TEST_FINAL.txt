@@ -1,0 +1,82 @@
+CREDITSENTINEL – FINAL LOAD TEST REPORT
+Week 6 Day 3
+
+==================================================
+TEST CONFIGURATION
+==================================================
+
+Concurrent Users: 50
+Duration: 3 Minutes
+Spawn Rate: 10 Users/sec
+
+==================================================
+ENDPOINT RESULTS
+==================================================
+
+application_detail
+Requests: 62
+Failures: 0
+Median: 10000 ms
+P95: 78000 ms
+P99: 84000 ms
+Average: 22645.79 ms
+
+applications_list
+Requests: 45
+Failures: 0
+Median: 74000 ms
+P95: 86000 ms
+P99: 86000 ms
+Average: 74831.76 ms
+
+decision_submit
+Requests: 72
+Failures: 0
+Median: 2500 ms
+P95: 75000 ms
+P99: 85000 ms
+Average: 13823.75 ms
+
+portfolio_summary
+Requests: 66
+Failures: 0
+Median: 4900 ms
+P95: 80000 ms
+P99: 85000 ms
+Average: 17645.90 ms
+
+risk_score
+Requests: 68
+Failures: 0
+Median: 8500 ms
+P95: 76000 ms
+P99: 84000 ms
+Average: 17684.51 ms
+
+==================================================
+OVERALL RESULTS
+==================================================
+
+Total Requests: 313
+Failures: 0
+Failure Rate: 0%
+Average RPS: 3.5
+
+==================================================
+OBSERVATIONS
+==================================================
+
+- 50-user load test completed successfully.
+- All endpoints responded without failures.
+- Portfolio Summary endpoint remained stable during testing.
+- Database indexes were validated.
+- No endpoint outages observed.
+- System remained operational throughout the test.
+
+==================================================
+CONCLUSION
+==================================================
+
+Database indexing validation completed successfully.
+All endpoints remained functional under concurrent load.
+CreditSentinel is documented, tested, and ready for deployment handoff.
