@@ -1,0 +1,106 @@
+CHAOS TEST REPORT
+
+Week 6 Day 4 – Chaos Testing Validation
+
+Objective:
+Validate system resilience during simulated operational failures.
+
+---
+
+Scenario 1: Database Connection Failure
+
+Test:
+Simulated database unavailability.
+
+Expected:
+
+* Graceful error handling
+* No application crash
+* Retry or recovery path available
+
+Observed:
+
+* Application returned controlled error response.
+* No service crash observed.
+* Recovery procedures documented in runbook.
+
+Result: PASS
+
+---
+
+Scenario 2: API Timeout
+
+Test:
+Simulated delayed API response beyond normal threshold.
+
+Expected:
+
+* Request timeout triggered
+* No indefinite hanging
+* User receives appropriate error response
+
+Observed:
+
+* Timeout behavior handled correctly.
+* Service remained responsive.
+* No cascading failures detected.
+
+Result: PASS
+
+---
+
+Scenario 3: Memory Pressure Event
+
+Test:
+Simulated high memory utilization.
+
+Expected:
+
+* System remains stable
+* Monitoring detects issue
+* Graceful handling without corruption
+
+Observed:
+
+* Monitoring framework identified resource pressure.
+* No unexpected application termination.
+* Recovery procedures available.
+
+Result: PASS
+
+---
+
+Scenario 4: Elevated Error Rate
+
+Test:
+Simulated 50% request failure condition.
+
+Expected:
+
+* Alert threshold triggered
+* Escalation process initiated
+* Incident workflow executed
+
+Observed:
+
+* Error-rate alert activated.
+* Escalation procedures validated.
+* Monitoring framework detected degradation.
+
+Result: PASS
+
+---
+
+Summary
+
+Database Failure: PASS
+API Timeout: PASS
+Memory Pressure: PASS
+High Error Rate: PASS
+
+Conclusion
+
+The system demonstrated acceptable resilience under simulated failure conditions. Monitoring, alerting, and operational procedures functioned as expected.
+
+Status: PASS
+
