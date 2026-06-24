@@ -1,0 +1,332 @@
+APPROVAL RATE MONITORING SYSTEM
+
+Week 7 Day 3 – Decision Approval Rate Monitoring & Anomaly Alerts
+
+## Objective
+
+Monitor decision approval rates, detect anomalies, track analyst compliance, and identify potential quality risks through approval trend analysis.
+
+---
+
+## Approval Rate Monitoring
+
+### Daily Approval Rate
+
+Formula:
+
+Approval Rate (%) =
+(Approved Decisions / Total Decisions) * 100
+
+Baseline Approval Rate:
+79.41%
+
+Monitoring Frequency:
+Daily
+
+Status:
+PASS
+
+---
+
+### Rolling 7-Day Average
+
+Purpose:
+Track approval trends over time and identify gradual shifts in decision behavior.
+
+Metrics:
+
+* 7-Day Rolling Approval Average
+* Daily Change %
+* Weekly Trend Direction
+
+Trend Classification:
+
+Increasing:
+Approval rate increasing for 3+ consecutive days
+
+Stable:
+Change within ±2%
+
+Decreasing:
+Approval rate decreasing for 3+ consecutive days
+
+Status:
+PASS
+
+---
+
+## Anomaly Detection Rules
+
+### Rule 1 – Approval Rate Too Low
+
+Threshold:
+Approval Rate < 70%
+
+Risk:
+
+* Analysts may be overly strict
+* Potential loss of good applicants
+
+Alert Severity:
+WARNING
+
+Recommended Action:
+
+* Review rejected applications
+* Audit analyst decisions
+* Verify rule configuration
+
+---
+
+### Rule 2 – Approval Rate Too High
+
+Threshold:
+Approval Rate > 85%
+
+Risk:
+
+* Analysts may be overly lenient
+* Increased portfolio risk
+
+Alert Severity:
+WARNING
+
+Recommended Action:
+
+* Review approved applications
+* Audit approval rationale
+* Verify risk controls
+
+---
+
+### Rule 3 – Sudden Daily Change
+
+Threshold:
+
+Approval Rate Change > 5% in 24 Hours
+
+Alert Severity:
+MEDIUM
+
+Investigation:
+
+* Review analyst activity
+* Review system changes
+* Review application mix
+
+Status:
+ACTIVE
+
+---
+
+## Analyst Compliance Monitoring
+
+Baseline Team Approval Rate:
+79.41%
+
+### Analyst Comparison Logic
+
+Analyst Approval Rate Difference =
+Analyst Rate – Team Average
+
+Alert Trigger:
+
+Difference > 10%
+
+Examples:
+
+Analyst A:
+Approval Rate = 82%
+Difference = +2.59%
+Status = NORMAL
+
+Analyst B:
+Approval Rate = 92%
+Difference = +12.59%
+Status = ALERT
+
+Analyst C:
+Approval Rate = 65%
+Difference = -14.41%
+Status = ALERT
+
+Recommended Actions:
+
+* Review decision samples
+* Verify rule adherence
+* Conduct refresher training if required
+
+Status:
+PASS
+
+---
+
+## Decision Quality Correlation
+
+Objective:
+
+Determine whether analyst strictness correlates with application quality.
+
+Metrics:
+
+### Strict Analysts
+
+Definition:
+
+Approval Rate < 70%
+
+Track:
+
+* Approved applications
+* Default rate
+* Delinquency rate
+
+### Lenient Analysts
+
+Definition:
+
+Approval Rate > 85%
+
+Track:
+
+* Approved applications
+* Default rate
+* Delinquency rate
+
+Analysis Outcome:
+
+If strict analysts have significantly lower default rates:
+Review approval standards.
+
+If lenient analysts have significantly higher default rates:
+Review approval controls.
+
+If no meaningful difference exists:
+Maintain current thresholds.
+
+Status:
+MONITORED
+
+---
+
+## Dashboard Design
+
+### Section 1 – Approval Rate Overview
+
+Display:
+
+* Current Approval Rate
+* Daily Change %
+* 7-Day Average
+* Trend Direction
+
+---
+
+### Section 2 – Trend Analysis
+
+Charts:
+
+* Daily Approval Rate
+* Weekly Trend
+* Rolling 7-Day Average
+
+---
+
+### Section 3 – Analyst Comparison
+
+Display:
+
+* Analyst Name
+* Approval Rate
+* Difference from Team Average
+* Compliance Status
+
+---
+
+### Section 4 – Alerts
+
+Display:
+
+* Approval Rate Too Low
+* Approval Rate Too High
+* Daily Change >5%
+* Analyst Deviation >10%
+
+---
+
+### Section 5 – Quality Correlation
+
+Display:
+
+* Default Rate by Analyst Group
+* Strict vs Lenient Comparison
+* Portfolio Impact
+
+---
+
+## Test Validation
+
+Validation Scenarios:
+
+### Scenario 1
+
+Approval Rate:
+68%
+
+Expected:
+LOW APPROVAL ALERT
+
+Result:
+PASS
+
+---
+
+### Scenario 2
+
+Approval Rate:
+88%
+
+Expected:
+HIGH APPROVAL ALERT
+
+Result:
+PASS
+
+---
+
+### Scenario 3
+
+Daily Change:
++7%
+
+Expected:
+ANOMALY ALERT
+
+Result:
+PASS
+
+---
+
+### Scenario 4
+
+Analyst Approval Rate:
+92%
+
+Expected:
+COMPLIANCE ALERT
+
+Result:
+PASS
+
+---
+
+## Final Assessment
+
+Approval rate monitoring framework successfully detects abnormal approval behavior, analyst deviations, and potential portfolio quality risks.
+
+Status: PASS
+
+Monitoring Dashboard Ready
+Anomaly Detection Ready
+Analyst Compliance Monitoring Ready
+Decision Quality Correlation Ready
