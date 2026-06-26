@@ -28,5 +28,11 @@ code {
   }
   to {
     transform: rotate(360deg);
+    button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
   }
 }

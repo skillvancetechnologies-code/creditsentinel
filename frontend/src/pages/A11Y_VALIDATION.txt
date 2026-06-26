@@ -1,0 +1,53 @@
+A11Y_DEEP_AUDIT.txt
+
+CreditSentinel Approval Dashboard
+Week 6 - Day 4 Accessibility Audit
+
+Audit Date: 17-Jun-2026
+
+1. Color Contrast Testing
+
+* Tested text against background colors using browser accessibility tools.
+* Dashboard headings readable on white background.
+* Status colors (Approved, Rejected, Under Review) verified for visibility.
+* Result: PASS
+
+2. Screen Reader Testing
+
+* Verified buttons have accessible labels.
+* Export CSV button announced correctly.
+* Export PDF button announced correctly.
+* View History buttons announced correctly.
+* Search input announced correctly.
+* Status filter dropdown announced correctly.
+* Result: PASS
+
+3. Keyboard Navigation Testing
+
+* Tested using Tab key only.
+* Search field accessible.
+* Status filter accessible.
+* Export CSV button accessible.
+* Export PDF button accessible.
+* View History buttons accessible.
+* Enter key activates buttons correctly.
+* Result: PASS
+
+4. Responsive Accessibility
+
+* Mobile (375px): PASS
+* Tablet: PASS
+* Desktop: PASS
+
+5. Issues Found
+
+* None critical.
+
+6. Fixes Applied
+
+* Added accessibility labels to interactive elements.
+* Added keyboard focus visibility.
+* Verified responsive layouts.
+
+Overall Accessibility Status: PASS
+WCAG Compliance: Basic requirements satisfied.

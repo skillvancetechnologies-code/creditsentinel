@@ -215,3 +215,101 @@ export const defaultMockMemo = {
     }
   ]
 }
+
+export const mockHistories = {
+  'APP-000001': [
+    {
+      audit_id: 101,
+      decision: 'APPROVE',
+      notes: 'Strong credit history, CIBIL score is excellent.',
+      timestamp: '2026-06-25T14:30:00.000Z',
+      applicant_name: 'Rahul Yadav',
+      analyst_name: 'Divya',
+      application_date: '2026-06-25',
+      decision_date: '2026-06-25T14:30:00.000Z',
+      submitted_at: '2026-06-25',
+      latency_ms: 150
+    },
+    {
+      audit_id: 100,
+      decision: 'REVIEW',
+      notes: 'Initial check, reviewing income files.',
+      timestamp: '2026-06-24T09:15:00.000Z',
+      applicant_name: 'Rahul Yadav',
+      analyst_name: 'Guru Prasad',
+      application_date: '2026-06-24',
+      decision_date: '2026-06-24T09:15:00.000Z',
+      submitted_at: '2026-06-24',
+      latency_ms: 2200
+    }
+  ],
+  'APP-000002': [
+    {
+      audit_id: 201,
+      decision: 'APPROVE',
+      notes: 'Lower limit approved after verifying night application context.',
+      timestamp: '2026-06-24T16:45:00.000Z',
+      applicant_name: 'Priya Sharma',
+      analyst_name: 'Guru Prasad',
+      application_date: '2026-06-24',
+      decision_date: '2026-06-24T16:45:00.000Z',
+      submitted_at: '2026-06-24',
+      latency_ms: 2500
+    },
+    {
+      audit_id: 200,
+      decision: 'REVIEW',
+      notes: 'Low CIBIL score flagged. Needs detailed underwriting.',
+      timestamp: '2026-06-23T11:00:00.000Z',
+      applicant_name: 'Priya Sharma',
+      analyst_name: 'Divya',
+      application_date: '2026-06-23',
+      decision_date: '2026-06-23T11:00:00.000Z',
+      submitted_at: '2026-06-23',
+      latency_ms: 800
+    }
+  ],
+  'APP-000003': [
+    {
+      audit_id: 300,
+      decision: 'APPROVE',
+      notes: 'Standard approval granted. Income matching passed manual checks.',
+      timestamp: '2026-06-23T10:30:00.000Z',
+      applicant_name: 'Amit Kumar',
+      analyst_name: 'Yuva Teja',
+      application_date: '2026-06-23',
+      decision_date: '2026-06-23T10:30:00.000Z',
+      submitted_at: '2026-06-23',
+      latency_ms: 450
+    }
+  ],
+  'APP-000004': [
+    {
+      audit_id: 400,
+      decision: 'REJECT',
+      notes: 'Previous default found along with low CIBIL score of 471.',
+      timestamp: '2026-06-22T15:20:00.000Z',
+      applicant_name: 'Sneha Reddy',
+      analyst_name: 'Guru Prasad',
+      application_date: '2026-06-22',
+      decision_date: '2026-06-22T15:20:00.000Z',
+      submitted_at: '2026-06-22',
+      latency_ms: 3100
+    }
+  ],
+  'APP-000005': [
+    {
+      audit_id: 500,
+      decision: 'REVIEW',
+      notes: 'High FOIR (67.31%) and income mismatch. Escalating for higher authority review.',
+      timestamp: '2026-06-21T08:50:00.000Z',
+      applicant_name: 'Vikram Singh',
+      analyst_name: 'Divya',
+      application_date: '2026-06-21',
+      decision_date: '2026-06-21T08:50:00.000Z',
+      submitted_at: '2026-06-21',
+      latency_ms: 1200
+    }
+  ]
+}
+

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { API_CONFIG } from './api/config'
+import DecisionPanel from './components/DecisionPanel'
+import ApprovalDashboard from './pages/ApprovalDashboard';
 import {
   mockApplications,
   mockRedFlags,
@@ -42,23 +44,29 @@ const buildPortfolioSummary = (applications) => {
 const getMockApplicationById = (appId) =>
   mockApplications.find((app) => app.application_id === appId) || null
 
-const fetchApplications = async () => {
+const fetchApplications = async (limit = 10, offset = 0) => {
   if (API_CONFIG.USE_MOCK) {
     return mockApplications
-  }
+  } 
 
   try {
-    const response = await apiFetch(API_CONFIG.APPLICATIONS_API, '/api/applications')
+    const response = await apiFetch(
+      API_CONFIG.APPLICATIONS_API,
+      `/api/applications?limit=${limit}&offset=${offset}`
+    )
 
     if (!response.ok) {
       throw new Error('Applications API down')
     }
 
-    const data = await response.json()
-    return data.applications || []
+    const data = await response.json() 
+    return data
   } catch (err) {
     console.log('Applications API down, using mock')
-    return mockApplications
+    return {
+      total: mockApplications.length,
+      applications: mockApplications
+    }
   }
 }
 
@@ -159,7 +167,14 @@ const fetchMemo = async (appId) => {
       throw new Error('Memo API down')
     }
 
-    return await response.json()
+    const data = await response.json()
+
+    return {
+      executive_summary: data.profile || 'No summary available',
+      income_obligations: data.repayment_capacity || 'No income analysis available',
+      red_flags: data.risk_factors || 'No red flags available',
+      recommendation: data.recommendation || data.decision || 'No recommendation available'
+   }
   } catch (err) {
     console.log('Memo API down, using mock')
     return mockMemos[appId] || defaultMockMemo
@@ -261,24 +276,39 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const Dashboard = () => {
   const [portfolio, setPortfolio] = useState({
-    total_applications: 15000,
-    high_risk_count: 2700,
-    medium_risk_count: 4500,
-    low_risk_count: 7800,
-    avg_risk_score: 42.3
-  })
+  total_applications: 0,
+  high_risk_count: 0,
+  medium_risk_count: 0,
+  low_risk_count: 0,
+  avg_risk_score: 0
+})
 
   useEffect(() => {
-    if (API_CONFIG.USE_MOCK) {
-      setPortfolio(buildPortfolioSummary(mockApplications))
-      return
-    }
+  if (API_CONFIG.USE_MOCK) {
+    setPortfolio(buildPortfolioSummary(mockApplications))
+    return
+  }
 
-    apiFetch(API_CONFIG.APPLICATIONS_API, '/api/portfolio/summary')
-      .then((r) => r.json())
-      .then((data) => setPortfolio(data))
-      .catch(() => setPortfolio(buildPortfolioSummary(mockApplications)))
-  }, [])
+  const cachedData = localStorage.getItem('dashboardSummary')
+
+  if (cachedData) {
+    setPortfolio(JSON.parse(cachedData))
+  }
+
+  apiFetch(API_CONFIG.APPLICATIONS_API, '/api/portfolio/summary')
+    .then((r) => r.json())
+    .then((data) => {
+      setPortfolio(data)
+
+      localStorage.setItem(
+        'dashboardSummary',
+        JSON.stringify(data)
+      )
+    })
+    .catch(() => {
+      setPortfolio(buildPortfolioSummary(mockApplications))
+    })
+}, [])
 
   return (
     <div style={{
@@ -304,22 +334,22 @@ const Dashboard = () => {
         {[
           {
             label:'Total Applications',
-            value:portfolio.total_applications,
+            value: portfolio.total || portfolio.total_applications,
             color:'#1B2A4A'
           },
           {
             label:'High Risk',
-            value:portfolio.high_risk_count,
+            value: portfolio.high || portfolio.high_risk_count,
             color:'#C53030'
           },
           {
             label:'Medium Risk',
-            value:portfolio.medium_risk_count,
+            value: portfolio.medium || portfolio.medium_risk_count,
             color:'#B7791F'
           },
           {
             label:'Low Risk',
-            value:portfolio.low_risk_count,
+            value: portfolio.low || portfolio.low_risk_count,
             color:'#1A6B3A'
           }
         ].map((k) => (
@@ -349,23 +379,41 @@ const Dashboard = () => {
 
 const Applications = () => {
   const [applications, setApplications] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalApplications, setTotalApplications] = useState(0)
+
+  const itemsPerPage = 10
   const navigate = useNavigate()
-
+  const [pageCache, setPageCache] = useState({})
   useEffect(() => {
-    let isMounted = true
+  let isMounted = true
 
-    fetchApplications()
-      .then((data) => {
-        if (isMounted) {
-          setApplications(data)
-        }
-      })
+  const offset = (currentPage - 1) * itemsPerPage
 
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  // Check cache first
+  if (pageCache[currentPage]) {
+    setTotalApplications(pageCache[currentPage].total)
+    setApplications(pageCache[currentPage].applications)
+    return
+  }
 
+  fetchApplications(itemsPerPage, offset)
+    .then((data) => {
+      if (isMounted) {
+        setTotalApplications(data.total)
+        setApplications(data.applications)
+
+        setPageCache((prev) => ({
+          ...prev,
+          [currentPage]: data
+        }))
+      }
+    })
+
+  return () => {
+    isMounted = false
+  }
+}, [currentPage, pageCache])
   return (
     <div style={{
       padding:'40px',
@@ -379,7 +427,20 @@ const Applications = () => {
       <p style={{ color:'#4A5568', marginBottom:'20px' }}>
         Showing {applications.length} applications
       </p>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '20px'
+      }}>
+       <span>
+         Showing {(currentPage - 1) * itemsPerPage + 1}-
+         {Math.min(currentPage * itemsPerPage, totalApplications)} of {totalApplications}
+       </span>
 
+       <span>
+         Page {currentPage} of {Math.ceil(totalApplications / itemsPerPage)}
+       </span>
+     </div>  
       <table style={{
         width:'100%',
         borderCollapse:'collapse',
@@ -413,9 +474,9 @@ const Applications = () => {
             >
               <td style={{ padding:'10px 12px', fontSize:'13px', color:'#4A5568' }}>{a.application_id}</td>
               <td style={{ padding:'10px 12px', fontSize:'13px' }}>{a.applicant_name}</td>
-              <td style={{ padding:'10px 12px', fontSize:'13px' }}>₹{formatCurrency(a.monthly_income)}</td>
-              <td style={{ padding:'10px 12px', fontSize:'13px' }}>₹{formatCurrency(a.requested_loan_amount)}</td>
-              <td style={{ padding:'10px 12px', fontSize:'13px' }}>{a.foir}%</td>
+              <td style={{ padding:'10px 12px', fontSize:'13px' }}>₹{formatCurrency(a.monthly_income || a.income)}</td>
+              <td style={{ padding:'10px 12px', fontSize:'13px' }}>₹{formatCurrency(a.loan_amount)}</td>
+              <td style={{ padding:'10px 12px', fontSize:'13px' }}>{a.foir ?? 'N/A'}%</td>
               <td style={{
                 padding:'10px 12px',
                 fontWeight:'bold',
@@ -426,12 +487,37 @@ const Applications = () => {
           ))}
         </tbody>
       </table>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+        marginTop: '20px'
+      }}>
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {currentPage}
+        </span>
+
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage >= Math.ceil(totalApplications / itemsPerPage)}
+        >
+          Next
+        </button>
+      </div>
     </div>
   )
 }
 
 const ApplicationDetail = () => {
   const { id } = useParams()
+  console.log("Route ID:", id)
   const [application, setApplication] = useState(null)
   const [riskResult, setRiskResult] = useState(null)
   const [redFlags, setRedFlags] = useState({ flag_count:0, flags:[] })
@@ -440,19 +526,70 @@ const ApplicationDetail = () => {
   const [memoError, setMemoError] = useState('')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function fetchDetail() {
+ useEffect(() => {
+  console.log("useEffect running")
+
+  async function fetchDetail() {
+    console.log("fetchDetail started")
+      const cacheKey = `detail_${id}`
+
+const cached = localStorage.getItem(cacheKey)
+
+if (cached) {
+  const parsed = JSON.parse(cached)
+
+  setApplication(parsed.application)
+  setRedFlags(parsed.redFlags)
+  if (parsed.application) {
+  const scorePayload = {
+    application_id: parsed.application.application_id,
+    monthly_income: parsed.application.monthly_income,
+    requested_loan_amount: parsed.application.requested_loan_amount,
+    existing_monthly_emi: parsed.application.existing_monthly_emi || 0,
+    employment_type: parsed.application.employment_type || 'Salaried',
+    employment_years: parsed.application.employment_years || 1,
+    foir: parsed.application.foir,
+    loan_to_income_ratio: parsed.application.loan_to_income_ratio || 0.6,
+    is_night_application: parsed.application.is_night_application || 0,
+    cibil_score: parsed.application.cibil_score ?? 700,
+    num_credit_inquiries_30d:
+      parsed.application.num_credit_inquiries_30d || 0,
+    has_previous_default:
+      parsed.application.has_previous_default || 0,
+    credit_utilization_pct:
+      parsed.application.credit_utilization_pct || 40
+  }
+
+  const scoreData = await fetchRiskScore(
+    scorePayload,
+    parsed.application.application_id,
+    'Medium'
+  )
+
+  setRiskResult(scoreData)
+}
+  setLoading(false)
+  return
+}
       try {
         setMemoData(null)
         setMemoLoading(false)
         setMemoError('')
 
-        const data = await fetchApplicationById(id)
-        setApplication(data)
+        const [data, flagsData] = await Promise.all([
+  fetchApplicationById(id),
+  fetchRedFlags(id)
+])
 
-        const flagsData = await fetchRedFlags(id)
-        setRedFlags(flagsData)
-
+setApplication(data)
+setRedFlags(flagsData)
+localStorage.setItem(
+  cacheKey,
+  JSON.stringify({
+    application: data,
+    redFlags: flagsData
+  })
+)
         if (data) {
           const scorePayload = {
             application_id:data.application_id,
@@ -464,14 +601,20 @@ const ApplicationDetail = () => {
             foir:data.foir,
             loan_to_income_ratio:data.loan_to_income_ratio || 0.6,
             is_night_application:data.is_night_application || 0,
-            cibil_score:data.cibil_score || 700,
+            cibil_score:data.cibil_score ?? 700,
             num_credit_inquiries_30d:data.num_credit_inquiries_30d || 0,
             has_previous_default:data.has_previous_default || 0,
             credit_utilization_pct:data.credit_utilization_pct || 40
           }
-
-          const scoreData = await fetchRiskScore(scorePayload, data.application_id, data.risk_tier)
-          setRiskResult(scoreData)
+          console.log("BEFORE SCORE API")
+          console.log("CACHE SCORE PAYLOAD", scorePayload)
+          const scoreData = await fetchRiskScore(
+  scorePayload,
+  data.application_id,
+  'Medium'
+)
+          console.log("AFTER SCORE API", scoreData)
+setRiskResult(scoreData)
         }
       } catch (err) {
         console.log(err)
@@ -544,10 +687,10 @@ const ApplicationDetail = () => {
         <h3>{application.applicant_name}</h3>
 
         <p><strong>Application ID:</strong> {application.application_id}</p>
-        <p><strong>Income:</strong> ₹{formatCurrency(application.monthly_income)}</p>
-        <p><strong>Loan Amount:</strong> ₹{formatCurrency(application.requested_loan_amount)}</p>
-        <p><strong>FOIR:</strong> {application.foir}%</p>
-        <p><strong>CIBIL:</strong> {application.cibil_score || 'N/A'}</p>
+        <p><strong>Income:</strong> ₹{formatCurrency(application.monthly_income || application.income)}</p>
+        <p><strong>Loan Amount:</strong> ₹{formatCurrency(application.loan_amount)}</p>
+        <p><strong>FOIR:</strong> {application.foir ?? 'N/A'}%</p>
+        <p><strong>CIBIL:</strong> {application.credit_score ?? 'N/A'}</p>
       </div>
 
       <div style={{
@@ -589,12 +732,45 @@ const ApplicationDetail = () => {
             <li>No red flags found</li>
           )}
           {(redFlags?.flags || []).map((flag) => (
-            <li key={`${flag.rule}-${flag.evidence}`}>
-              {flag.rule} - {flag.evidence}
-            </li>
-          ))}
+  <li
+    key={`${flag.rule}-${flag.evidence}`}
+    style={{
+      marginBottom:'12px',
+      color:
+        flag.severity === 'High'
+          ? 'red'
+          : flag.severity === 'Medium'
+          ? 'orange'
+          : '#C9A227',
+      fontWeight:'600'
+    }}
+  >
+    <strong>{flag.rule}</strong> — {flag.evidence}
+
+    <span
+      style={{
+        marginLeft:'10px',
+        padding:'4px 8px',
+        borderRadius:'12px',
+        fontSize:'12px',
+        background:
+          flag.severity === 'High'
+            ? '#FEE2E2'
+            : flag.severity === 'Medium'
+            ? '#FFEDD5'
+            : '#FEF9C3'
+      }}
+    >
+      {flag.severity}
+    </span>
+  </li>
+))}
         </ul>
       </div>
+<DecisionPanel
+  applicationId={application?.application_id}
+  onDecision={(data) => console.log(data)}
+/>
 
       <div style={{
         background:'white',
@@ -603,6 +779,7 @@ const ApplicationDetail = () => {
         marginTop:'20px',
         boxShadow:'0 2px 6px rgba(0,0,0,0.1)'
       }}>
+        
         <h3>Credit Memo</h3>
 
         <button
@@ -642,17 +819,43 @@ const ApplicationDetail = () => {
               <div
                 key={`${section.title}-${index}`}
                 style={{
-                  background:'#F4F6F9',
-                  padding:'16px',
-                  borderRadius:'6px'
+                  background: '#f8fafc',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  minHeight: '220px'  
                 }}
               >
-                <h4 style={{ margin:'0 0 8px', color:'#1B2A4A' }}>
-                  {section.title}
+                <h4
+                 style={{
+                 margin: '0 0 15px',
+                 color: '#1B2A4A',
+                 fontSize: '20px',
+                 textTransform: 'capitalize'
+                 }}
+                >
+                {section.title}
                 </h4>
-                <p style={{ margin:0, color:'#4A5568', whiteSpace:'pre-wrap' }}>
-                  {section.content}
-                </p>
+                <div
+                  style={{
+                   margin: 0,
+                   color: '#374151',
+                   lineHeight: '1.7',
+                   fontSize: '15px',
+                   whiteSpace: 'pre-line'
+                 }}
+               >
+                 {section.title.toLowerCase().includes('red')
+                   ? section.content
+                       .split(/\d+\./)
+                       .filter(Boolean)
+                       .map((point, idx) => (
+                         <div key={idx} style={{ marginBottom: '12px' }}>
+                           • {point.trim()}
+                         </div>
+                       ))
+                   : section.content}
+                </div>
               </div>
             ))}
           </div>
@@ -773,6 +976,7 @@ function App() {
           <h2 style={{ color:'white' }}>CreditSentinel</h2>
           <Link to="/" style={lnk}>Dashboard</Link>
           <Link to="/applications" style={lnk}>Applications</Link>
+          <Link to="/dashboard/approvals" style={lnk}>Approval Dashboard</Link>
           <Link to="/risk" style={lnk}>Risk Score</Link>
           <Link to="/reports" style={lnk}>Reports</Link>
         </div>
@@ -782,8 +986,14 @@ function App() {
           <Route path="/applications" element={<Applications />} />
           <Route path="/application/:id" element={<ApplicationDetail />} />
           <Route path="/risk" element={<RiskScore />} />
-          <Route path="/reports" element={<Reports />} />
-        </Routes>
+<Route path="/reports" element={<Reports />} />
+
+<Route
+  path="/dashboard/approvals"
+  element={<ApprovalDashboard />}
+/>
+
+</Routes>
       </div>
     </BrowserRouter>
   )
