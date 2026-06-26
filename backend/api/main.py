@@ -1001,21 +1001,10 @@ async def process_decision(application_id: str, req: DecisionRequest):
 # =========================================================
 # PORTFOLIO SUMMARY
 # =========================================================
-# Add this near the top of your file after applications_df loads
-_portfolio_cache = {"data": None, "computed_at": 0}
-PORTFOLIO_CACHE_TTL = 300  # recompute every 5 minutes only
-
 @app.get("/api/portfolio/summary")
 def portfolio_summary():
     start = time.time()
     try:
-        # Return cached result if less than 5 minutes old
-        now = time.time()
-        if _portfolio_cache["data"] and (now - _portfolio_cache["computed_at"]) < PORTFOLIO_CACHE_TTL:
-            print(f"✅ Portfolio Summary: served from cache")
-            return _portfolio_cache["data"]
-
-        # Only recompute if cache is stale
         df = applications_df
         def get_col(name):
             if name in df.columns:
@@ -1043,20 +1032,14 @@ def portfolio_summary():
         medium  = int(((score >= 650) & (score < 750)).sum())
         high    = int((score < 650).sum())
         elapsed = round(time.time() - start, 2)
-
-        result = {
+        print(f"✅ Portfolio Summary: high={high}, medium={medium}, low={low}, time={elapsed}s")
+        return {
             "total_applications":     TOTAL_APPLICATIONS,
             "high":                   high,
             "medium":                 medium,
             "low":                    low,
             "execution_time_seconds": elapsed,
         }
-        # Save to cache
-        _portfolio_cache["data"]        = result
-        _portfolio_cache["computed_at"] = now
-
-        print(f"✅ Portfolio Summary: high={high}, medium={medium}, low={low}, time={elapsed}s")
-        return result
     except Exception as e:
         err = traceback.format_exc()
         print("PORTFOLIO ERROR:", err)
