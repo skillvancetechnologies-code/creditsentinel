@@ -145,7 +145,7 @@ def generate_memo_fast(prompt: str):
     start = time.time()
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=100,
             temperature=0.1,
