@@ -1,0 +1,70 @@
+ALERT_CONFIGURATION
+
+Week 7 – Day 5
+
+Red Flag Monitoring Alert Configuration
+
+1. Alert Thresholds
+
+Alert 1 – Rule Effectiveness Drop
+
+* Trigger: Rule effectiveness decreases by more than 5%
+* Example: 100% → 95%
+* Action: Notify Project Manager immediately.
+
+Alert 2 – Rule Never Fires
+
+* Trigger: A rule records 0 triggers within 24 hours.
+* Action: Verify rule logic and data pipeline.
+
+Alert 3 – Rule Fires Too Frequently
+
+* Trigger: Rule activates for more than 50% of decisions.
+* Action: Review threshold and adjust sensitivity if required.
+
+Alert 4 – False Positive Detected
+
+* Trigger: A rule flags an applicant who is later verified as not risky.
+* Action: Review rule logic and evidence generation.
+
+2. Alert Implementation
+
+* Continuous monitoring of rule performance.
+* Dashboard notification for active alerts.
+* Email notification to Project Manager.
+* All alerts logged with timestamp and affected rule.
+
+3. Dashboard Design
+
+Dashboard displays:
+
+* Current rule effectiveness
+* Active alerts
+* Rule performance trends
+* Rules requiring review
+* Recommended corrective actions
+
+4. Response Procedure
+
+Step 1: Alert generated.
+Step 2: PM reviews within one hour.
+Step 3: Root cause analysis performed.
+Step 4: Threshold adjusted or rule updated.
+Step 5: Validation completed and alert closed.
+
+5. Test Results
+
+Scenario 1:
+Rule effectiveness reduced below threshold.
+Result: Alert triggered successfully.
+
+Scenario 2:
+Rule inactive for 24 hours.
+Result: Alert generated successfully.
+
+Scenario 3:
+False positive detected.
+Result: Escalation workflow initiated.
+
+Status:
+Alert configuration validated and ready for production monitoring.
