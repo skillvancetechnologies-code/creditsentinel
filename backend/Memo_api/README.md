@@ -1,10 +1,10 @@
 # 🏦 Loan Underwriting Memo API
 
-!\[Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
-!\[FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi)
-!\[LLaMA](https://img.shields.io/badge/LLM-LLaMA%203.1-purple)
-!\[Groq](https://img.shields.io/badge/Inference-Groq-orange)
-!\[License](https://img.shields.io/badge/License-MIT-green)
+[Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
+[FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi)
+[LLaMA](https://img.shields.io/badge/LLM-LLaMA%203.1-purple)
+[Groq](https://img.shields.io/badge/Inference-Groq-orange)
+[License](https://img.shields.io/badge/License-MIT-green)
 
 > A microservice component of the Credit Lending Platform — generates AI-powered underwriting memos for loan applications using CIBIL scores, FOIR analysis, and LLaMA 3.1 via Groq.
 
@@ -208,14 +208,14 @@ cp .env.example .env
 # Open .env and replace the placeholder with your actual Groq API key
 
 # 5. Start the server
-uvicorn memo\_api:app --reload
+uvicorn memo_api:app --reload
 ```
 
 |URL|Purpose|
 |-|-|
-|`http://127.0.0.1:8000`|API root|
-|`http://127.0.0.1:8000/docs`|Swagger interactive docs|
-|`http://127.0.0.1:8000/redoc`|ReDoc documentation|
+|`https://creditsentinel-kkg7.onrender.com`|API root|
+|`https://creditsentinel-kkg7.onrender.com/docs`|Swagger interactive docs|
+|`https://creditsentinel-kkg7.onrender.com/redoc`|ReDoc documentation|
 
 \---
 
