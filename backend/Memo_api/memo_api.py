@@ -808,7 +808,7 @@ CRITICAL INSTRUCTIONS:
     def sse_generator():
         try:
             chat_stream = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model="openai/gpt-oss-20b",
                 messages=messages,
                 max_tokens=600,
                 temperature=0.4,
