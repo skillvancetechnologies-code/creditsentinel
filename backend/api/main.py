@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
@@ -484,8 +484,7 @@ def health():
         "model_loaded":       True,
         "total_applications": TOTAL_APPLICATIONS,
         "cibil_source":       "computed_from_foir_income_lti_loans_employment",
-        "optimizations":      ["batch_db_lookup", "lru_feature_cache",
-                               "batch_model_inference", "async_audit", "db_index"],
+       
     }
 
 # =========================================================
@@ -851,7 +850,11 @@ def get_decision_history(application_id: str):
 #                UnboundLocalError if exception fires before assignment.
 # =========================================================
 @app.post("/api/applications/{application_id}/process-decision")
-async def process_decision(application_id: str, req: DecisionRequest):
+async def process_decision(
+    application_id: str,
+    req: DecisionRequest,
+    x_analyst_name: str = Header(...)
+):
     decision_start = time.time()
     decision_map = {
         "APPROVE": "APPROVE", "APPROVED": "APPROVE",
@@ -863,7 +866,11 @@ async def process_decision(application_id: str, req: DecisionRequest):
         return {"status": "failed", "error": "Invalid decision. Allowed: APPROVE, REJECT, REVIEW"}
     decision     = decision_map[decision]
     notes        = req.notes or ""
-    analyst_name = req.analyst_name or ""
+
+    # PRACTICAL FIX (Week 7 sprint): analyst_name now comes from the
+    # X-Analyst-Name request header instead of the request body, since
+    # there is no auth system yet.
+    analyst_name = x_analyst_name
     conn         = None
     search_id    = str(application_id).strip().upper()
 
@@ -981,14 +988,14 @@ async def process_decision(application_id: str, req: DecisionRequest):
     # BUG-2 FIX: replaced asyncio.create_task(fire_and_forget_audit(...))
     # with a plain fire_and_forget_audit() call (thread-pool submit).
     # No event loop dependency — safe in all call contexts.
-    fire_and_forget_audit(audit_payload)
+    audit_id = _audit_worker(audit_payload)
 
     latency_ms = round((time.time() - decision_start) * 1000, 2)
     return {
         "application_id":    application_id,
         "applicant_name":    real_applicant_name,
         "analyst_name":      analyst_name,
-        "audit_id":          None,   # not waited for — audit writes in background
+        "audit_id":          audit_id,   # not waited for — audit writes in background
         "status":            decision.lower(),
         "next_action":       notification_type,
         "notification_sent": notification_sent,
