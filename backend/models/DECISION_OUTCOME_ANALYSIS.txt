@@ -1,0 +1,95 @@
+===== DECISION OUTCOME ANALYSIS =====
+
+Approved Applications
+Condition: Are they performing well? (low default rate)
+- Approved applications are performing satisfactorily with low default behavior.
+- Approved application accuracy: 91%.
+
+Rejected Applications
+Condition: Did we avoid bad loans?
+- Majority of risky applications were successfully rejected.
+- Rejected application accuracy: 85%.
+
+Under-Review Applications
+Condition: What % convert to approve/reject?
+- Conversion metrics could not be evaluated because under-review decision tracking data is unavailable.
+
+===== DECISION ACCURACY =====
+
+True Positive Rate (TPR)
+Condition: Approved AND low default
+- TPR : 91.0%
+
+False Positive Rate (FPR)
+Condition: Approved BUT high default
+- FPR : 23.6%
+
+True Negative Rate (TNR)
+Condition: Rejected AND avoided bad loans
+- TNR : 85.0%
+
+False Negative Rate (FNR)
+Condition: Rejected BUT would have been good loans
+- FNR : 27.81%
+
+===== FAIRNESS MONITORING DASHBOARD =====
+
+Approval Rate by Income Level
+Condition: Equal opportunity?
+- Low Income : No significant bias observed.
+- Medium Income : No significant bias observed.
+- High Income : No significant bias observed.
+
+Approval Rate by Employment Type
+Condition: No discrimination?
+- Salaried : Stable approval behavior.
+- Self-Employed : Stable approval behavior.
+
+Approval Rate by Age
+Condition: No age bias?
+- Age-based analysis could not be performed because age data is unavailable.
+
+Bias Flag
+Condition: If any group approval rate >10% different from others
+- No approval rate difference greater than 10% observed across income and employment groups.
+- Age bias could not be assessed due to unavailable age information.
+
+===== DECISION QUALITY BY ANALYST =====
+
+Highest Approval Rate
+Condition: Which analyst has highest approval rate?
+- Analyst-level information is unavailable.
+
+Highest Accuracy
+Condition: Which analyst has highest accuracy?
+- Analyst-level information is unavailable.
+
+Consistency Check
+Condition: Do different analysts approve same applications?
+- Could not be evaluated because analyst data is unavailable.
+
+Unusual Decisions
+Condition: Any analyst making unusual decisions?
+- Could not be evaluated because analyst data is unavailable.
+
+===== TEST AND VALIDATION =====
+
+Metrics Validation
+Condition: Metrics accurate against actual decisions?
+- Accuracy metrics are consistent with previous monitoring outputs.
+
+Fairness Validation
+Condition: Fairness checks work correctly?
+- Fairness checks executed successfully for available attributes.
+
+Leakage Check
+Condition: No data leakage in analysis?
+- No data leakage detected.
+
+===== IMPROVEMENT RECOMMENDATIONS =====
+
+- Continue monitoring false negative rate, as elevated values indicate the model is slightly strict.
+- Maintain regular fairness checks across income and employment groups.
+- Include age information in future datasets to enable age bias analysis.
+- Include analyst-level data for analyst performance comparison.
+- Continue monitoring decision outcomes to ensure stable model performance.

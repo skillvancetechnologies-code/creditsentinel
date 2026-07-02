@@ -1,0 +1,14 @@
+===== RETRAINING TRIGGERS =====
+AUC Trigger : True
+Sample Trigger : True
+Month Trigger : True
+
+===== PERFORMANCE MONITORING =====
+Daily AUC : 0.8106
+False Negative Rate : 0.2781
+False Positive Rate : 0.2360
+
+===== TEST RESULTS =====
+Baseline AUC : 0.8106
+New AUC : 0.8106
+Decision : DEPLOY

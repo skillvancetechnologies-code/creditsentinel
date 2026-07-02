@@ -1,0 +1,18 @@
+
+MODEL STRESS TEST RESULTS
+
+Total Extreme Cases Tested: 100
+
+Baseline AUC: 0.8106
+
+Results
+-------
+NaN Outputs: 0
+Invalid Scores: 0
+Min Score: 0.1227
+Max Score: 0.7882
+
+Conclusion:
+Model successfully handled all extreme applicant profiles.
+No crashes occurred.
+No invalid predictions detected.
